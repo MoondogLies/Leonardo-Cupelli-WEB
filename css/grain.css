@@ -1,3 +1,5 @@
+@import url('./header-interactions.css?v=1');
+
 body::after {
   content: "";
   position: fixed;
