@@ -1,50 +1,15 @@
 @import url('./header-interactions.css?v=1');
 
-:root { --browser-edge: #0b0b0d; }
 body::after {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: 10;
+  z-index: 9999;
   pointer-events: none;
   opacity: .04;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)'/%3E%3C/svg%3E");
   background-repeat: repeat;
 }
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 15;
-  pointer-events: none;
-  background-image: linear-gradient(to bottom, var(--browser-edge) 0px, var(--browser-edge) 24px, rgba(11,11,13,.85) 42%, rgba(11,11,13,.35) 72%, rgba(11,11,13,0) 100%), linear-gradient(to top, var(--browser-edge) 0px, var(--browser-edge) 24px, rgba(11,11,13,.85) 42%, rgba(11,11,13,.35) 72%, rgba(11,11,13,0) 100%);
-  background-position: center top, center bottom;
-  background-size: 100% 160px;
-  background-size: 100% clamp(120px, 20svh, 200px);
-  background-repeat: no-repeat;
-}
-
-.site-header,
-.archive-header {
-  background: linear-gradient(to bottom, var(--browser-edge) 0%, rgba(11,11,13,.82) 35%, rgba(11,11,13,.35) 72%, rgba(11,11,13,0) 100%);
-}
-.site-header { padding-bottom: 42px; }
-.archive-header { position: relative; z-index: 20; padding-bottom: 42px; color: #fff; }
-.site-header.is-dark,
-.site-header.is-light { color: #fff; }
-.has-scrolled .site-header,
-.has-scrolled .archive-header { background: transparent; }
-.has-scrolled body::before {
-  background-size: 100% 0px, 100% 160px;
-  background-size: 100% 0px, 100% clamp(120px, 20svh, 200px);
-}
-.contact .site-footer {
-  background: linear-gradient(to top, var(--browser-edge) 0%, rgba(11,11,13,.82) 35%, rgba(11,11,13,.35) 72%, rgba(11,11,13,0) 100%);
-  padding-top: 64px;
-  color: #d0ceca;
-}
-.contact .site-footer p { position: relative; z-index: 20; }
 
 @media (prefers-reduced-motion: reduce) {
   body::after { animation: none; }
