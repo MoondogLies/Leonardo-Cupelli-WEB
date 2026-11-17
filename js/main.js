@@ -3,8 +3,8 @@ async function loadReleases() {
   const response = await fetch("data/releases.json");
   const releases = await response.json();
 
-  container.innerHTML = releases.map(release => `
-    <article class="release">
+  const articles = releases.map(release => `
+    <article class="release" data-search-term="${encodeURIComponent(release.searchTerm)}" data-fallback-cover="${release.cover}">
       <img class="release-cover" src="${release.cover}" alt="Cover art for ${release.title}">
 
       <div class="release-content">
@@ -28,6 +28,33 @@ async function loadReleases() {
       </div>
     </article>
   `).join("");
+
+  container.innerHTML = articles;
+
+  container.querySelectorAll(".release").forEach(article => {
+    loadWebCover(article);
+  });
+}
+
+async function loadWebCover(article) {
+  const image = article.querySelector(".release-cover");
+  const searchTerm = article.dataset.searchTerm;
+  const fallback = article.dataset.fallbackCover;
+
+  try {
+    const response = await fetch(`https://itunes.apple.com/search?term=${searchTerm}&entity=song&limit=1`);
+    const data = await response.json();
+    const result = data.results?.[0];
+
+    if (result?.artworkUrl100) {
+      image.src = result.artworkUrl100.replace("100x100bb", "1200x1200bb");
+      return;
+    }
+  } catch (error) {
+    console.warn("Cover lookup failed:", error);
+  }
+
+  image.src = fallback;
 }
 
 function slugify(value) {
