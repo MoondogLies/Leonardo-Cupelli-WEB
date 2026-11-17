@@ -5,8 +5,8 @@
   --text: #f2f0ec;
   --muted: #a5a29b;
   --border: rgba(255, 255, 255, .12);
-  --serif: "Cormorant Garamond", "Times New Roman", serif;
-  --sans: system-ui, -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --display: "Barlow Condensed", system-ui, sans-serif;
+  --sans: "Inter", system-ui, sans-serif;
   --spotify-green: #1ed760;
   --bandcamp-blue: #629aa9;
   --apple-red: #fa243c;
@@ -30,6 +30,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--sans);
+  font-style: normal;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
@@ -49,7 +50,17 @@ a { color: inherit; text-decoration: none; }
   backdrop-filter: none;
 }
 
-.site-nav { display: flex; gap: 28px; font-size: .8rem; text-transform: uppercase; letter-spacing: .14em; }
+.site-nav {
+  display: flex;
+  gap: 28px;
+  font-family: var(--display);
+  font-size: .95rem;
+  font-weight: 500;
+  font-style: normal;
+  text-transform: uppercase;
+  letter-spacing: .18em;
+}
+
 .site-nav a:hover { color: var(--spotify-green); }
 
 .release {
@@ -89,20 +100,32 @@ a { color: inherit; text-decoration: none; }
 .release-kicker {
   margin: 0;
   color: var(--muted);
-  font-size: .74rem;
-  letter-spacing: .22em;
+  font-family: var(--display);
+  font-size: .9rem;
+  font-weight: 400;
+  font-style: normal;
+  letter-spacing: .24em;
   text-transform: uppercase;
 }
 
 .release-title {
   margin: 0;
-  font-family: var(--serif);
-  font-size: clamp(2.2rem, 5vw, 4.4rem);
-  font-weight: 400;
-  line-height: 1.02;
+  font-family: var(--display);
+  font-size: clamp(2.8rem, 6vw, 5.6rem);
+  font-weight: 500;
+  font-style: normal;
+  line-height: .94;
+  letter-spacing: .02em;
+  text-transform: uppercase;
 }
 
-.release-meta { margin: 0; color: var(--muted); font-size: .95rem; }
+.release-meta {
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: .95rem;
+  font-weight: 400;
+}
 
 .stream-links {
   display: grid;
@@ -119,9 +142,12 @@ a { color: inherit; text-decoration: none; }
   min-height: 52px;
   border: 0;
   border-radius: 26px;
-  font-size: .9rem;
-  font-weight: 700;
-  letter-spacing: .01em;
+  font-family: var(--display);
+  font-size: 1rem;
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: .08em;
+  text-transform: uppercase;
   transition: transform .2s ease, filter .2s ease;
 }
 
@@ -131,13 +157,11 @@ a { color: inherit; text-decoration: none; }
 .stream-link--spotify {
   background: var(--spotify-green);
   color: #000;
-  font-family: var(--sans);
 }
 
 .stream-link--bandcamp {
   background: var(--bandcamp-blue);
   color: #fff;
-  font-family: var(--sans);
 }
 
 .stream-link--apple-music {
@@ -161,14 +185,34 @@ a { color: inherit; text-decoration: none; }
   border-top: 1px solid var(--border);
 }
 
-.contact h2 { font-family: var(--serif); font-size: clamp(2.4rem, 6vw, 5rem); font-weight: 400; margin: 0 0 18px; }
-.contact a { color: var(--spotify-green); border-bottom: 1px solid currentColor; }
+.contact h2 {
+  font-family: var(--display);
+  font-size: clamp(3rem, 8vw, 7rem);
+  font-weight: 500;
+  font-style: normal;
+  line-height: .94;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  margin: 0 0 18px;
+}
+
+.contact p {
+  font-family: var(--sans);
+  font-weight: 400;
+}
+
+.contact a {
+  color: var(--spotify-green);
+  border-bottom: 1px solid currentColor;
+}
 
 .site-footer {
   padding: 34px 24px;
   text-align: center;
   color: var(--muted);
+  font-family: var(--sans);
   font-size: .78rem;
+  font-weight: 400;
   border-top: 1px solid var(--border);
 }
 
