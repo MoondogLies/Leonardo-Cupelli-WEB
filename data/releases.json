@@ -1,0 +1,27 @@
+[
+  {
+    "title": "A magnificent piece of old wood",
+    "type": "Single",
+    "year": 2024,
+    "cover": "covers/a-magnificent-piece-of-old-wood.jpg",
+    "embeds": {
+      "Spotify": {
+        "url": "https://open.spotify.com/embed/artist/4aTJ4F6R23RQkM2ZJKU3vD",
+        "height": 352
+      },
+      "Bandcamp": {
+        "url": "https://bandcamp.com/EmbeddedPlayer/album=BANDCAMP_ALBUM_ID/size=large/bgcol=0b0b0b/linkcol=e8c39e/minimal=true/transparent=true/",
+        "height": 180
+      },
+      "Apple Music": {
+        "url": "https://embed.music.apple.com/it/album/APPLE_ALBUM_ID",
+        "height": 180
+      },
+      "YouTube": {
+        "url": "https://www.youtube.com/embed/videoseries?list=OLAK5uy_m_4O00rX_cnqnrvbHRZewadywD11Nrwjs",
+        "height": 180
+      }
+    },
+    "universalLink": "https://distrokid.com/hyperfollow/leonardocupelli/a-magnificent-piece-of-old-wood-2"
+  }
+]
