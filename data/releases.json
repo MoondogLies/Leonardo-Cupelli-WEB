@@ -7,18 +7,10 @@
     "cover": "covers/a-magnificent-piece-of-old-wood.jpg",
     "headerTone": "dark",
     "links": {
-      "Spotify": {
-        "url": "https://open.spotify.com/album/0MpPT37VShBWFkfHpwp6WQ"
-      },
-      "Bandcamp": {
-        "url": "https://leonardocupelli.bandcamp.com/"
-      },
-      "Apple Music": {
-        "url": "https://music.apple.com/it/artist/leonardo-cupelli/"
-      },
-      "YouTube": {
-        "url": "https://music.youtube.com/channel/UCsJ7Boz5KkN1kRzCQcckYSA"
-      }
+      "Spotify": { "url": "https://open.spotify.com/album/0MpPT37VShBWFkfHpwp6WQ" },
+      "Bandcamp": { "url": "https://leonardocupelli.bandcamp.com/" },
+      "Apple Music": { "url": "https://music.apple.com/it/artist/leonardo-cupelli/" },
+      "YouTube": { "url": "https://music.youtube.com/channel/UCsJ7Boz5KkN1kRzCQcckYSA" }
     },
     "universalLink": "https://distrokid.com/hyperfollow/leonardocupelli/a-magnificent-piece-of-old-wood-2"
   },
@@ -30,19 +22,123 @@
     "cover": "covers/my-head-is-under-the-piano.jpg",
     "headerTone": "dark",
     "links": {
-      "Spotify": {
-        "url": "https://open.spotify.com/album/5zoHGYS9QxPTHiNa0Bwz8u"
-      },
-      "Bandcamp": {
-        "url": "https://leonardocupelli.bandcamp.com/"
-      },
-      "Apple Music": {
-        "url": "https://music.apple.com/it/artist/leonardo-cupelli/"
-      },
-      "YouTube": {
-        "url": "https://music.youtube.com/channel/UCsJ7Boz5KkN1kRzCQcckYSA"
-      }
+      "Spotify": { "url": "https://open.spotify.com/album/5zoHGYS9QxPTHiNa0Bwz8u" },
+      "Bandcamp": { "url": "https://leonardocupelli.bandcamp.com/" },
+      "Apple Music": { "url": "https://music.apple.com/it/artist/leonardo-cupelli/" },
+      "YouTube": { "url": "https://music.youtube.com/channel/UCsJ7Boz5KkN1kRzCQcckYSA" }
     },
     "universalLink": "https://distrokid.com/hyperfollow/leonardocupelli/my-head-is-under-the-piano-2"
+  },
+  {
+    "title": "In the Midst of Our Haste",
+    "type": "EP",
+    "year": 2022,
+    "spotifyReleaseUrl": "https://open.spotify.com/album/3YjGhDUz844GIJ3VJNwqJW",
+    "cover": "covers/in-the-midst-of-our-haste.jpg",
+    "headerTone": "dark",
+    "links": {
+      "Spotify": { "url": "https://open.spotify.com/album/3YjGhDUz844GIJ3VJNwqJW" },
+      "Bandcamp": { "url": "https://leonardocupelli.bandcamp.com/" },
+      "Apple Music": { "url": "https://music.apple.com/it/artist/leonardo-cupelli/" },
+      "YouTube": { "url": "https://music.youtube.com/channel/UCsJ7Boz5KkN1kRzCQcckYSA" }
+    }
+  },
+  {
+    "title": "Water and Stone",
+    "type": "Single",
+    "year": 2020,
+    "spotifyReleaseUrl": "https://open.spotify.com/album/6jvBRA5VmHMN34WELSpr4p",
+    "cover": "covers/water-and-stone.jpg",
+    "headerTone": "dark",
+    "links": {
+      "Spotify": { "url": "https://open.spotify.com/album/6jvBRA5VmHMN34WELSpr4p" },
+      "Bandcamp": { "url": "https://leonardocupelli.bandcamp.com/" },
+      "Apple Music": { "url": "https://music.apple.com/it/artist/leonardo-cupelli/" },
+      "YouTube": { "url": "https://music.youtube.com/channel/UCsJ7Boz5KkN1kRzCQcckYSA" }
+    }
+  },
+  {
+    "title": "Everything, Forever",
+    "type": "Single",
+    "year": 2020,
+    "spotifyReleaseUrl": "https://open.spotify.com/album/637FWPiFGlJ5RLhaOcVFyt",
+    "cover": "covers/everything-forever.jpg",
+    "headerTone": "dark",
+    "links": {
+      "Spotify": { "url": "https://open.spotify.com/album/637FWPiFGlJ5RLhaOcVFyt" },
+      "Bandcamp": { "url": "https://leonardocupelli.bandcamp.com/" },
+      "Apple Music": { "url": "https://music.apple.com/it/artist/leonardo-cupelli/" },
+      "YouTube": { "url": "https://music.youtube.com/channel/UCsJ7Boz5KkN1kRzCQcckYSA" }
+    }
+  },
+  {
+    "title": "High Wind",
+    "type": "Single",
+    "year": 2020,
+    "spotifyReleaseUrl": "https://open.spotify.com/album/3ps0Fe8QDs6ZAjleLT2ShY",
+    "cover": "covers/high-wind.jpg",
+    "headerTone": "dark",
+    "links": {
+      "Spotify": { "url": "https://open.spotify.com/album/3ps0Fe8QDs6ZAjleLT2ShY" },
+      "Bandcamp": { "url": "https://leonardocupelli.bandcamp.com/" },
+      "Apple Music": { "url": "https://music.apple.com/it/artist/leonardo-cupelli/" },
+      "YouTube": { "url": "https://music.youtube.com/channel/UCsJ7Boz5KkN1kRzCQcckYSA" }
+    }
+  },
+  {
+    "title": "Consistent Value",
+    "type": "Single",
+    "year": 2020,
+    "spotifyReleaseUrl": "https://open.spotify.com/album/7qoH6g7gEGY74JxFa1F9nV",
+    "cover": "covers/consistent-value.jpg",
+    "headerTone": "dark",
+    "links": {
+      "Spotify": { "url": "https://open.spotify.com/album/7qoH6g7gEGY74JxFa1F9nV" },
+      "Bandcamp": { "url": "https://leonardocupelli.bandcamp.com/" },
+      "Apple Music": { "url": "https://music.apple.com/it/artist/leonardo-cupelli/" },
+      "YouTube": { "url": "https://music.youtube.com/channel/UCsJ7Boz5KkN1kRzCQcckYSA" }
+    }
+  },
+  {
+    "title": "Similar",
+    "type": "Single",
+    "year": 2020,
+    "spotifyReleaseUrl": "https://open.spotify.com/album/5dIvO9cjTbyommnDQTR6Wh",
+    "cover": "covers/similar.jpg",
+    "headerTone": "dark",
+    "links": {
+      "Spotify": { "url": "https://open.spotify.com/album/5dIvO9cjTbyommnDQTR6Wh" },
+      "Bandcamp": { "url": "https://leonardocupelli.bandcamp.com/" },
+      "Apple Music": { "url": "https://music.apple.com/it/artist/leonardo-cupelli/" },
+      "YouTube": { "url": "https://music.youtube.com/channel/UCsJ7Boz5KkN1kRzCQcckYSA" }
+    }
+  },
+  {
+    "title": "Liminal",
+    "type": "Single",
+    "year": 2020,
+    "spotifyReleaseUrl": "https://open.spotify.com/album/2wkhVrvtmtsB0RDAAb0OHS",
+    "cover": "covers/liminal.jpg",
+    "headerTone": "dark",
+    "links": {
+      "Spotify": { "url": "https://open.spotify.com/album/2wkhVrvtmtsB0RDAAb0OHS" },
+      "Bandcamp": { "url": "https://leonardocupelli.bandcamp.com/" },
+      "Apple Music": { "url": "https://music.apple.com/it/artist/leonardo-cupelli/" },
+      "YouTube": { "url": "https://music.youtube.com/channel/UCsJ7Boz5KkN1kRzCQcckYSA" }
+    }
+  },
+  {
+    "title": "Say a Simple Phrase / in the Right Place",
+    "type": "Single",
+    "year": 2019,
+    "spotifyReleaseUrl": "https://open.spotify.com/album/0vhC0HP2m7WYV44WXA0diZ",
+    "cover": "covers/say-a-simple-phrase-in-the-right-place.jpg",
+    "headerTone": "dark",
+    "links": {
+      "Spotify": { "url": "https://open.spotify.com/album/0vhC0HP2m7WYV44WXA0diZ" },
+      "Bandcamp": { "url": "https://leonardocupelli.bandcamp.com/" },
+      "Apple Music": { "url": "https://music.apple.com/it/artist/leonardo-cupelli/" },
+      "YouTube": { "url": "https://music.youtube.com/channel/UCsJ7Boz5KkN1kRzCQcckYSA" }
+    }
   }
 ]
