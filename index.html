@@ -15,7 +15,8 @@
     .release { scroll-snap-align: start; scroll-snap-stop: always; }
     .contact { scroll-snap-align: start; }
     .site-footer { scroll-snap-align: end; }
-    .header-top { margin-right: auto; font-family: var(--display); font-size: .95rem; font-weight: 500; text-transform: uppercase; letter-spacing: .18em; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .3s ease, visibility 0s linear .3s; }
+    .header-top { margin-right: auto; display: grid; place-items: center; width: 28px; height: 28px; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .3s ease, visibility 0s linear .3s; }
+    .header-top svg { width: 20px; height: 20px; }
     .header-top.is-visible { opacity: 1; visibility: visible; pointer-events: auto; transition-delay: 0s; }
     .header-top:hover { color: var(--spotify-green); }
     .header-top:focus-visible { outline: 2px solid currentColor; outline-offset: 6px; }
@@ -27,7 +28,12 @@
 </head>
 <body>
   <header class="site-header is-dark" id="site-header">
-    <a class="header-top" id="header-top" href="#top" aria-label="Torna in cima alla pagina" aria-hidden="true" tabindex="-1" inert>Top</a>
+    <a class="header-top" id="header-top" href="#top" aria-label="Torna in cima alla pagina" aria-hidden="true" tabindex="-1" inert>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 19V5m-6 6 6-6 6 6"></path>
+        <path d="M5 21h14"></path>
+      </svg>
+    </a>
     <nav class="site-nav">
       <a href="releases.html">Releases</a>
       <a href="#contact">Contacts</a>
