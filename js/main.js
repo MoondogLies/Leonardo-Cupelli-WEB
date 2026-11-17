@@ -3,8 +3,8 @@ async function loadReleases() {
   const response = await fetch("data/releases.json");
   const releases = await response.json();
 
-  const articles = releases.map(release => `
-    <article class="release" data-search-term="${encodeURIComponent(release.searchTerm)}" data-fallback-cover="${release.cover}">
+  container.innerHTML = releases.map(release => `
+    <article class="release" data-spotify-url="${encodeURIComponent(release.spotifyReleaseUrl)}" data-fallback-cover="${release.cover}">
       <img class="release-cover" src="${release.cover}" alt="Cover art for ${release.title}">
 
       <div class="release-content">
@@ -29,29 +29,26 @@ async function loadReleases() {
     </article>
   `).join("");
 
-  container.innerHTML = articles;
-
   container.querySelectorAll(".release").forEach(article => {
-    loadWebCover(article);
+    loadSpotifyCover(article);
   });
 }
 
-async function loadWebCover(article) {
+async function loadSpotifyCover(article) {
   const image = article.querySelector(".release-cover");
-  const searchTerm = article.dataset.searchTerm;
+  const spotifyUrl = article.dataset.spotifyUrl;
   const fallback = article.dataset.fallbackCover;
 
   try {
-    const response = await fetch(`https://itunes.apple.com/search?term=${searchTerm}&entity=song&limit=1`);
+    const response = await fetch(`https://open.spotify.com/oembed?url=${spotifyUrl}`);
     const data = await response.json();
-    const result = data.results?.[0];
 
-    if (result?.artworkUrl100) {
-      image.src = result.artworkUrl100.replace("100x100bb", "1200x1200bb");
+    if (data.thumbnail_url) {
+      image.src = data.thumbnail_url;
       return;
     }
   } catch (error) {
-    console.warn("Cover lookup failed:", error);
+    console.warn("Spotify cover lookup failed:", error);
   }
 
   image.src = fallback;
