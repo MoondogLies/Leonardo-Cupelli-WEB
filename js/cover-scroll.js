@@ -1,7 +1,7 @@
 (() => {
   document.querySelector('.viewport-fade')?.remove();
   const style = document.createElement('style');
-  style.textContent = '.release { background: var(--bg); } .release-cover { filter: blur(var(--cover-blur, 0px)); opacity: var(--cover-opacity, 1); }';
+  style.textContent = '.release-cover { filter: blur(var(--cover-blur, 0px)); opacity: 1; }';
   document.head.append(style);
   const container = document.getElementById('release-list');
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -17,7 +17,7 @@
       const exiting = Math.max(0, Math.min(1, -rect.top / Math.max(1, rect.height)));
       const amount = reducedMotion.matches ? 0 : Math.max(entering, exiting);
       image.style.setProperty('--cover-blur', `${(amount * 16).toFixed(2)}px`);
-      image.style.setProperty('--cover-opacity', (1 - amount).toFixed(3));
+      image.style.removeProperty('--cover-opacity');
     });
   }
   function schedule() {
