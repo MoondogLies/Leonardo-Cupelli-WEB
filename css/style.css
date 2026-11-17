@@ -7,6 +7,10 @@
   --border: rgba(255, 255, 255, .12);
   --display: "Barlow Condensed", system-ui, sans-serif;
   --sans: "Inter", system-ui, sans-serif;
+  --spotify-font: "Circular Std", "Circular", Helvetica, Arial, sans-serif;
+  --bandcamp-font: "Rubik", system-ui, sans-serif;
+  --apple-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  --youtube-font: "Roboto", system-ui, sans-serif;
   --spotify-green: #1ed760;
   --bandcamp-blue: #629aa9;
   --apple-red: #fa243c;
@@ -142,12 +146,11 @@ a { color: inherit; text-decoration: none; }
   min-height: 52px;
   border: 0;
   border-radius: 26px;
-  font-family: var(--display);
   font-size: 1rem;
   font-weight: 600;
   font-style: normal;
-  letter-spacing: .08em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
   transition: transform .2s ease, filter .2s ease;
 }
 
@@ -157,23 +160,25 @@ a { color: inherit; text-decoration: none; }
 .stream-link--spotify {
   background: var(--spotify-green);
   color: #000;
+  font-family: var(--spotify-font);
 }
 
 .stream-link--bandcamp {
   background: var(--bandcamp-blue);
   color: #fff;
+  font-family: var(--bandcamp-font);
 }
 
 .stream-link--apple-music {
   background: var(--apple-red);
   color: #fff;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--apple-font);
 }
 
 .stream-link--youtube {
   background: var(--youtube-red);
   color: #fff;
-  font-family: Roboto, system-ui, sans-serif;
+  font-family: var(--youtube-font);
 }
 
 .contact {
