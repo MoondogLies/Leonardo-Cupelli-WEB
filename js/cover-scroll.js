@@ -129,3 +129,49 @@
   },true);
   register();
 })();
+
+(() => {
+  const header = document.getElementById('site-header');
+  const nav = header?.querySelector('.site-nav');
+  const contacts = nav?.querySelector('a[href="#contact"]');
+  const discography = nav?.querySelector('a[href="releases.html"]');
+  const section = document.getElementById('contact');
+  if (!nav || !contacts || !discography || !section) return;
+  contacts.classList.add('nav-contacts');
+  discography.classList.add('nav-discography');
+  const style = document.createElement('style');
+  style.textContent = `.site-nav .nav-contacts { opacity:1; visibility:visible; transition:opacity .2s ease,visibility 0s; } .site-nav .nav-discography { translate:0 0; transition:translate .45s cubic-bezier(.22,.61,.36,1),transform .3s cubic-bezier(.22,.61,.36,1); } .site-nav.at-contact-bottom .nav-contacts { opacity:0; visibility:hidden; pointer-events:none; transition:opacity .2s ease,visibility 0s linear .2s; } .site-nav.at-contact-bottom .nav-discography { translate:var(--contact-nav-shift,0px) 0; } @media(prefers-reduced-motion:reduce) { .site-nav .nav-contacts,.site-nav .nav-discography { transition:none!important; } }`;
+  document.head.append(style);
+  let frame = 0;
+  let collapsed = false;
+  function update() {
+    frame = 0;
+    const gap = parseFloat(getComputedStyle(nav).columnGap) || 0;
+    nav.style.setProperty('--contact-nav-shift', `${contacts.offsetWidth + gap}px`);
+    const remaining = document.documentElement.scrollHeight - window.scrollY - window.innerHeight;
+    const atSection = section.getBoundingClientRect().top <= header.getBoundingClientRect().bottom + 1;
+    const next = atSection && remaining <= (collapsed ? 28 : 6);
+    if (next === collapsed) return;
+    collapsed = next;
+    if (collapsed && document.activeElement === contacts) discography.focus({ preventScroll:true });
+    contacts.toggleAttribute('inert', collapsed);
+    contacts.setAttribute('aria-hidden', String(collapsed));
+    contacts.tabIndex = collapsed ? -1 : 0;
+    nav.classList.toggle('at-contact-bottom', collapsed);
+  }
+  function schedule() {
+    if (!frame) frame = requestAnimationFrame(update);
+  }
+  window.addEventListener('scroll', schedule, { passive:true });
+  window.addEventListener('resize', schedule);
+  window.addEventListener('pageshow', schedule);
+  window.addEventListener('hashchange', schedule);
+  document.addEventListener('scrollend', schedule);
+  window.visualViewport?.addEventListener('resize', schedule);
+  window.visualViewport?.addEventListener('scroll', schedule);
+  const sizes = new ResizeObserver(schedule);
+  sizes.observe(document.body);
+  sizes.observe(nav);
+  document.fonts.ready.then(schedule);
+  schedule();
+})();
