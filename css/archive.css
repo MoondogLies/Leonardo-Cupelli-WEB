@@ -4,7 +4,7 @@ html { scroll-snap-type: none; }
 .back-home { display:grid; place-items:center; width:44px; height:44px; }
 .back-home svg { width:26px; height:26px; }
 .archive-main { max-width:1080px; margin:auto; padding:clamp(32px,7vh,80px) clamp(22px,6vw,80px) 80px; }
-.archive-title { position:fixed; top:50%; left:clamp(12px,3vw,44px); z-index:5; margin:0; transform:translateY(-50%) rotate(-90deg); transform-origin:center; color:var(--text); font-family:var(--display); font-weight:500; font-style:normal; text-transform:uppercase; font-size:clamp(3.5rem,10vw,7rem); line-height:1; white-space:nowrap; pointer-events:none; }
+.archive-title { position:fixed; top:66.6667%; left:clamp(22px,6vw,80px); z-index:5; margin:0; transform:translateY(-50%) rotate(-90deg); transform-origin:left center; color:var(--text); font-family:var(--display); font-weight:500; font-style:normal; text-transform:uppercase; font-size:clamp(3.5rem,10vw,7rem); line-height:1; white-space:nowrap; pointer-events:none; }
 .archive-intro { color:var(--muted); margin:18px 0 48px; }
 .release-index { list-style:none; margin:0; padding:0; margin-left:clamp(90px,16vw,220px); }
 .archive-entry { border-top:1px solid var(--border); padding:28px 0; }
@@ -19,6 +19,6 @@ html { scroll-snap-type: none; }
 .back-home:focus-visible,.archive-main a:focus-visible { outline:2px solid currentColor; outline-offset:6px; }
 @media (max-width: 860px) {
   .archive-main { padding-top:24px; }
-  .archive-title { top:auto; bottom:18px; left:10px; transform:rotate(-90deg); transform-origin:left bottom; font-size:clamp(2.2rem,7vw,3.4rem); }
+  .archive-title { top:66.6667%; left:clamp(22px,6vw,80px); transform:translateY(-50%) rotate(-90deg); transform-origin:left center; font-size:clamp(2.2rem,7vw,3.4rem); }
   .release-index { margin-left:clamp(58px,18vw,110px); }
 }
