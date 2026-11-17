@@ -1,0 +1,9 @@
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f3f1eb;
+    --surface: #faf9f6;
+    --text: #1c1c1a;
+    --muted: #6c6962;
+    --border: rgba(35, 32, 25, .13);
+  }
+}
