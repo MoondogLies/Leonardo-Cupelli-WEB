@@ -9,6 +9,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@200;300;400;500;600&family=Inter:wght@400;500;600&family=Rubik:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    html { scroll-snap-type: y mandatory; }
+    .release { scroll-snap-align: start; scroll-snap-stop: always; }
+    .contact { scroll-snap-align: start; }
+    .site-footer { scroll-snap-align: end; }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-snap-type: y proximity; scroll-behavior: auto; }
+    }
+  </style>
 </head>
 <body>
   <header class="site-header is-dark" id="site-header">
