@@ -26,6 +26,12 @@ async function loadReleases() {
           `).join("")}
         </div>
       </div>
+
+      <div class="scroll-cue" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 9l6 6 6-6"></path>
+        </svg>
+      </div>
     </article>
   `).join("");
 
