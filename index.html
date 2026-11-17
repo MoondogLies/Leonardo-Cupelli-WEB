@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Leonardo Cupelli — Composer</title>
   <meta name="description" content="Official portfolio of composer Leonardo Cupelli. Listen to releases on Spotify, Bandcamp, Apple Music and YouTube.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,6 +20,12 @@
     .header-top.is-visible { opacity: 1; visibility: visible; pointer-events: auto; transition-delay: 0s; }
     .header-top:hover { color: var(--spotify-green); }
     .header-top:focus-visible { outline: 2px solid currentColor; outline-offset: 6px; }
+    .safari-top-edge { display: none; }
+    @media (max-width: 860px) {
+      html { background-color: var(--top-edge-color, var(--bg)); }
+      .safari-top-edge { display: block; position: fixed; left: 0; right: 0; top: -7px; height: max(12px, env(safe-area-inset-top, 0px)); background: var(--top-edge-color, var(--bg)); pointer-events: none; z-index: 10; }
+      .site-header { padding-top: calc(22px + env(safe-area-inset-top, 0px)); padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); }
+    }
     @media (prefers-reduced-motion: reduce) {
       html { scroll-snap-type: y proximity; scroll-behavior: auto; }
       .header-top { transition: none; }
@@ -27,6 +33,7 @@
   </style>
 </head>
 <body>
+  <div class="safari-top-edge" aria-hidden="true"></div>
   <header class="site-header is-dark" id="site-header">
     <a class="header-top" id="header-top" href="#top" aria-label="Torna in cima alla pagina" aria-hidden="true" tabindex="-1" inert>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -84,6 +91,77 @@
       window.addEventListener('pageshow', schedule);
       new MutationObserver(schedule).observe(list, { childList: true });
       new ResizeObserver(schedule).observe(list);
+      update();
+    })();
+    (() => {
+      const root = document.documentElement;
+      const list = document.getElementById('release-list');
+      const mobile = matchMedia('(max-width: 860px)');
+      const cache = new WeakMap();
+      const theme = document.createElement('meta');
+      theme.name = 'theme-color';
+      document.head.append(theme);
+      let pending = false;
+      let lastColor = '';
+      function pixels(image) {
+        const src = image.currentSrc || image.src;
+        const saved = cache.get(image);
+        if (saved?.src === src) return saved.data;
+        if (!image.complete || !image.naturalWidth) return null;
+        let data = null;
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = canvas.height = 24;
+          const context = canvas.getContext('2d', { willReadFrequently: true });
+          context.drawImage(image, 0, 0, 24, 24);
+          data = context.getImageData(0, 0, 24, 24).data;
+        } catch (_) {}
+        cache.set(image, { src, data });
+        return data;
+      }
+      function update() {
+        pending = false;
+        if (!mobile.matches) {
+          root.style.removeProperty('--top-edge-color');
+          theme.removeAttribute('content');
+          lastColor = '';
+          return;
+        }
+        let color = getComputedStyle(document.body).backgroundColor;
+        const top = (window.visualViewport?.offsetTop || 0) + 5;
+        for (const image of list.querySelectorAll('.release-cover')) {
+          const rect = image.getBoundingClientRect();
+          if (rect.top > top || rect.bottom <= top || rect.height <= 0) continue;
+          const data = pixels(image);
+          if (data) {
+            const row = Math.max(0, Math.min(23, Math.floor((top - rect.top) / rect.height * 24)));
+            const rgb = [0, 0, 0];
+            for (let x = 0; x < 24; x++) {
+              const offset = (row * 24 + x) * 4;
+              rgb.forEach((_, c) => rgb[c] += data[offset + c]);
+            }
+            color = `rgb(${rgb.map(value => Math.round(value / 24)).join(', ')})`;
+          }
+          break;
+        }
+        if (color !== lastColor) {
+          root.style.setProperty('--top-edge-color', color);
+          theme.content = color;
+          lastColor = color;
+        }
+      }
+      function schedule() {
+        if (!pending) { pending = true; requestAnimationFrame(update); }
+      }
+      window.addEventListener('scroll', schedule, { passive: true });
+      window.addEventListener('resize', schedule);
+      window.addEventListener('pageshow', schedule);
+      window.visualViewport?.addEventListener('resize', schedule);
+      window.visualViewport?.addEventListener('scroll', schedule);
+      mobile.addEventListener('change', schedule);
+      matchMedia('(prefers-color-scheme: dark)').addEventListener('change', schedule);
+      list.addEventListener('load', schedule, true);
+      new MutationObserver(schedule).observe(list, { childList: true });
       update();
     })();
   </script>
