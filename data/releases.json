@@ -20,5 +20,27 @@
       }
     },
     "universalLink": "https://distrokid.com/hyperfollow/leonardocupelli/a-magnificent-piece-of-old-wood-2"
+  },
+  {
+    "title": "My Head is Under the Piano",
+    "type": "Single",
+    "year": 2024,
+    "spotifyReleaseUrl": "https://open.spotify.com/album/5zoHGYS9QxPTHiNa0Bwz8u",
+    "cover": "covers/my-head-is-under-the-piano.jpg",
+    "links": {
+      "Spotify": {
+        "url": "https://open.spotify.com/album/5zoHGYS9QxPTHiNa0Bwz8u"
+      },
+      "Bandcamp": {
+        "url": "https://leonardocupelli.bandcamp.com/"
+      },
+      "Apple Music": {
+        "url": "https://music.apple.com/it/artist/leonardo-cupelli/"
+      },
+      "YouTube": {
+        "url": "https://music.youtube.com/channel/UCsJ7Boz5KkN1kRzCQcckYSA"
+      }
+    },
+    "universalLink": "https://distrokid.com/hyperfollow/leonardocupelli/my-head-is-under-the-piano-2"
   }
 ]
