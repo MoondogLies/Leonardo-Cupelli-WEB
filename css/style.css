@@ -69,7 +69,14 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: .18em;
 }
 
-.site-nav a:hover { color: var(--spotify-green); }
+.site-nav a {
+  transition: transform .3s cubic-bezier(.22,.61,.36,1);
+}
+
+.site-nav a:hover,
+.site-nav a:focus-visible {
+  transform: scale(1.08);
+}
 
 .viewport-fade {
   position: fixed;
