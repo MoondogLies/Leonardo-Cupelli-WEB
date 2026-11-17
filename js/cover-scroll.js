@@ -1,75 +1,65 @@
 (() => {
   document.querySelector('.viewport-fade')?.remove();
   const style = document.createElement('style');
-  style.textContent = '.release-cover { filter: blur(var(--cover-blur, 0px)); opacity: 1; } .release-cover.is-blur-active { will-change: filter; }';
+  style.textContent = `
+    .release { position: relative; }
+    .release-cover { filter: none !important; opacity: 1 !important; }
+    .cover-edge-blur { position: absolute; pointer-events: none; z-index: 1; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); mask-image: var(--edge-mask); -webkit-mask-image: var(--edge-mask); }
+    .scroll-cue { z-index: 2; }
+    @media (prefers-reduced-motion: reduce) { .cover-edge-blur { display: none; } }
+  `;
   document.head.append(style);
   const container = document.getElementById('release-list');
-  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const states = new Map();
   let frame = 0;
-  let dirty = true;
-  let previousTime = 0;
   function schedule() {
-    dirty = true;
-    if (!frame) frame = requestAnimationFrame(tick);
+    if (!frame) frame = requestAnimationFrame(update);
   }
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       const state = states.get(entry.target);
-      if (state) {
-        state.visible = entry.isIntersecting;
-        entry.target.classList.toggle('is-blur-active', entry.isIntersecting && !reducedMotion.matches);
-      }
+      if (state) state.visible = entry.isIntersecting;
     });
     schedule();
-  }, { rootMargin: '40px' });
+  }, { rootMargin: '80px' });
   function register() {
     container.querySelectorAll('.release-cover').forEach(image => {
       if (states.has(image)) return;
-      states.set(image, { visible: true, current: 0, target: 0, written: -1 });
+      const overlay = document.createElement('div');
+      overlay.className = 'cover-edge-blur';
+      overlay.setAttribute('aria-hidden', 'true');
+      image.closest('.release').append(overlay);
+      states.set(image, { overlay, visible: true });
       observer.observe(image);
     });
-    for (const [image] of states) {
-      if (!image.isConnected) { observer.unobserve(image); states.delete(image); }
+    for (const [image, state] of states) {
+      if (!image.isConnected) { observer.unobserve(image); state.overlay.remove(); states.delete(image); }
     }
     schedule();
   }
-  function tick(time) {
+  function update() {
     frame = 0;
-    const dt = previousTime ? Math.min(50, time - previousTime) : 16.67;
-    previousTime = time;
-    const alpha = 1 - Math.exp(-dt / 65);
-    if (dirty) {
-      dirty = false;
-      const height = window.visualViewport?.height || window.innerHeight;
-      const offset = window.visualViewport?.offsetTop || 0;
-      for (const [image, state] of states) {
-        if (!state.visible && !reducedMotion.matches) continue;
-        image.classList.toggle('is-blur-active', state.visible && !reducedMotion.matches);
-        const rect = image.getBoundingClientRect();
-        const top = rect.top - offset;
-        const band = Math.min(height * 0.22, rect.height * 0.5);
-        if (band <= 0) continue;
-        const entering = Math.max(0, Math.min(1, (top - (height - band)) / band));
-        const exiting = Math.max(0, Math.min(1, -top / Math.max(1, rect.height)));
-        state.target = reducedMotion.matches ? 0 : Math.max(entering, exiting) * 12;
-      }
-    }
-    let moving = false;
+    const viewport = window.visualViewport;
+    const height = viewport?.height || window.innerHeight;
+    const top = viewport?.offsetTop || 0;
+    const band = Math.min(160, height * 0.18);
+    const measurements = [];
     for (const [image, state] of states) {
-      if (!state.visible && !reducedMotion.matches) continue;
-      state.current = reducedMotion.matches ? 0 : state.current + (state.target - state.current) * alpha;
-      if (Math.abs(state.target - state.current) < 0.04) state.current = state.target;
-      else moving = true;
-      const value = Math.round(state.current * 20) / 20;
-      if (value !== state.written) {
-        image.style.setProperty('--cover-blur', `${value}px`);
-        image.style.removeProperty('--cover-opacity');
-        state.written = value;
-      }
+      if (!state.visible) continue;
+      const rect = image.getBoundingClientRect();
+      const parent = image.closest('.release').getBoundingClientRect();
+      measurements.push({ state, rect, parent });
     }
-    if (moving) frame = requestAnimationFrame(tick);
-    else previousTime = 0;
+    measurements.forEach(({ state, rect, parent }) => {
+      const overlay = state.overlay;
+      overlay.style.left = `${rect.left - parent.left}px`;
+      overlay.style.top = `${rect.top - parent.top - 1}px`;
+      overlay.style.width = `${rect.width}px`;
+      overlay.style.height = `${rect.height}px`;
+      const upper = top - rect.top;
+      const lower = top + height - rect.top;
+      overlay.style.setProperty('--edge-mask', `linear-gradient(to bottom, #000 ${upper}px, transparent ${upper + band}px), linear-gradient(to bottom, transparent ${lower - band}px, #000 ${lower}px)`);
+    });
   }
   new MutationObserver(register).observe(container, { childList: true, subtree: true });
   window.addEventListener('scroll', schedule, { passive: true });
@@ -77,6 +67,5 @@
   window.visualViewport?.addEventListener('resize', schedule);
   window.visualViewport?.addEventListener('scroll', schedule);
   container.addEventListener('load', schedule, true);
-  reducedMotion.addEventListener('change', schedule);
   register();
 })();
