@@ -14,11 +14,11 @@
   <style>
     .archive-page .archive-title {
       position: fixed;
-      top: 50%;
+      top: var(--archive-title-top, 108px);
       bottom: auto;
       left: max(clamp(22px, 6vw, 80px), env(safe-area-inset-left, 0px));
       width: max-content;
-      transform: rotate(-90deg);
+      transform: rotate(-90deg) translateX(-100%);
       transform-origin: top left;
     }
   </style>
@@ -36,5 +36,30 @@
     <ol id="release-index" class="release-index" aria-label="Pubblicazioni dalla più recente alla più vecchia"></ol>
     <noscript>Attiva JavaScript per visualizzare le pubblicazioni.</noscript>
   </main>
+  <script>
+    (() => {
+      const list = document.getElementById('release-index');
+      const title = document.querySelector('.archive-title');
+      let frame = 0;
+      function schedule() {
+        if (frame) return;
+        frame = requestAnimationFrame(() => {
+          frame = 0;
+          const first = list.firstElementChild;
+          if (!first) return;
+          const top = first.getBoundingClientRect().top + window.scrollY;
+          title.style.setProperty('--archive-title-top', `${top}px`);
+        });
+      }
+      new MutationObserver(schedule).observe(list, { childList: true });
+      const sizes = new ResizeObserver(schedule);
+      sizes.observe(document.querySelector('.archive-header'));
+      sizes.observe(document.querySelector('.archive-main'));
+      window.addEventListener('resize', schedule);
+      window.addEventListener('pageshow', schedule);
+      document.fonts.ready.then(schedule);
+      schedule();
+    })();
+  </script>
 </body>
 </html>
