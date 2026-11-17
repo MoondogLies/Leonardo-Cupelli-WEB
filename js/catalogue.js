@@ -1,4 +1,10 @@
 (() => {
+  function updateScrollState() {
+    document.documentElement.classList.toggle('has-scrolled', window.scrollY > 8);
+  }
+  window.addEventListener('scroll', updateScrollState, { passive: true });
+  window.addEventListener('pageshow', updateScrollState);
+  updateScrollState();
   function releaseId(release, index) {
     const match = (release.spotifyReleaseUrl || '').match(/\/(?:album|track)\/([a-zA-Z0-9]+)/);
     return `release-${release.id || match?.[1] || index + 1}`;

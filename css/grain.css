@@ -1,5 +1,6 @@
 @import url('./header-interactions.css?v=1');
 
+:root { --browser-edge: #0b0b0d; }
 body::after {
   content: "";
   position: fixed;
@@ -17,7 +18,7 @@ body::before {
   inset: 0;
   z-index: 15;
   pointer-events: none;
-  background-image: linear-gradient(to bottom, #000 0px, #000 24px, rgba(0,0,0,.85) 42%, rgba(0,0,0,.35) 72%, rgba(0,0,0,0) 100%), linear-gradient(to top, #000 0px, #000 24px, rgba(0,0,0,.85) 42%, rgba(0,0,0,.35) 72%, rgba(0,0,0,0) 100%);
+  background-image: linear-gradient(to bottom, var(--browser-edge) 0px, var(--browser-edge) 24px, rgba(11,11,13,.85) 42%, rgba(11,11,13,.35) 72%, rgba(11,11,13,0) 100%), linear-gradient(to top, var(--browser-edge) 0px, var(--browser-edge) 24px, rgba(11,11,13,.85) 42%, rgba(11,11,13,.35) 72%, rgba(11,11,13,0) 100%);
   background-position: center top, center bottom;
   background-size: 100% 160px;
   background-size: 100% clamp(120px, 20svh, 200px);
@@ -26,14 +27,20 @@ body::before {
 
 .site-header,
 .archive-header {
-  background: linear-gradient(to bottom, #000 0%, rgba(0,0,0,.82) 35%, rgba(0,0,0,.35) 72%, rgba(0,0,0,0) 100%);
+  background: linear-gradient(to bottom, var(--browser-edge) 0%, rgba(11,11,13,.82) 35%, rgba(11,11,13,.35) 72%, rgba(11,11,13,0) 100%);
 }
 .site-header { padding-bottom: 42px; }
 .archive-header { position: relative; z-index: 20; padding-bottom: 42px; color: #fff; }
 .site-header.is-dark,
 .site-header.is-light { color: #fff; }
+.has-scrolled .site-header,
+.has-scrolled .archive-header { background: transparent; }
+.has-scrolled body::before {
+  background-size: 100% 0px, 100% 160px;
+  background-size: 100% 0px, 100% clamp(120px, 20svh, 200px);
+}
 .contact .site-footer {
-  background: linear-gradient(to top, #000 0%, rgba(0,0,0,.82) 35%, rgba(0,0,0,.35) 72%, rgba(0,0,0,0) 100%);
+  background: linear-gradient(to top, var(--browser-edge) 0%, rgba(11,11,13,.82) 35%, rgba(11,11,13,.35) 72%, rgba(11,11,13,0) 100%);
   padding-top: 64px;
   color: #d0ceca;
 }
