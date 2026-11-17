@@ -9,8 +9,19 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css?v=2">
-  <link rel="stylesheet" href="css/archive.css?v=2">
+  <link rel="stylesheet" href="css/archive.css?v=3">
   <link rel="stylesheet" href="css/grain.css?v=2">
+  <style>
+    .archive-page .archive-title {
+      position: fixed;
+      top: 66.6667%;
+      bottom: auto;
+      left: max(clamp(22px, 6vw, 80px), env(safe-area-inset-left, 0px));
+      width: max-content;
+      transform: rotate(-90deg);
+      transform-origin: top left;
+    }
+  </style>
   <script src="js/catalogue.js?ver=2" defer></script>
 </head>
 <body class="archive-page">
@@ -28,3 +39,4 @@
     <noscript>Attiva JavaScript per visualizzare le pubblicazioni.</noscript>
   </main>
 </body>
+</html>
