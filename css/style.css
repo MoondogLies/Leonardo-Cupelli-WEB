@@ -5,7 +5,6 @@
   --text: #f2f0ec;
   --muted: #a5a29b;
   --border: rgba(255, 255, 255, .12);
-  --grid-image: url("../assets/griglia-tipografica-dark.svg");
   --display: "Barlow Condensed", system-ui, sans-serif;
   --sans: "Inter", system-ui, sans-serif;
   --spotify-font: "Circular Std", "Circular", Helvetica, Arial, sans-serif;
@@ -25,7 +24,6 @@
     --text: #141414;
     --muted: #6d6a63;
     --border: rgba(0, 0, 0, .14);
-    --grid-image: url("../assets/griglia-tipografica-light.svg");
   }
 }
 
@@ -33,10 +31,7 @@
 
 body {
   margin: 0;
-  background-color: var(--bg);
-  background-image: var(--grid-image);
-  background-repeat: repeat;
-  background-position: 0 0;
+  background: var(--bg);
   color: var(--text);
   font-family: var(--sans);
   font-style: normal;
