@@ -37,6 +37,7 @@ const scrollCue = `
 // A release whose cover is the Dattilogramma: the section is several screens tall, the cover and
 // text stay pinned while the text decomposes; halfway through, the square sheet starts to appear
 // beneath it, and the last stretch of the section is a pause with the finished cover.
+// It only runs forward: scrolling back up does not recompose, and coming from below the cover is complete.
 function animatedRelease(release) {
   return `
     <article
@@ -45,7 +46,7 @@ function animatedRelease(release) {
       data-header-tone="${release.headerTone || "auto"}">
       <div class="release-sticky">
         <div class="release-cover release-cover--animated" role="img" aria-label="Cover art for ${release.title}">
-          <dattilogramma-scroll recipe="${release.animation}" paper="reveal" track=".release" start="4" end="62" reveal="33 62"></dattilogramma-scroll>
+          <dattilogramma-scroll recipe="${release.animation}" paper="reveal" track=".release" start="4" end="62" reveal="33 62" forward></dattilogramma-scroll>
         </div>
 
         ${releaseContent(release)}

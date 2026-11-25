@@ -31,6 +31,9 @@
  *                  (CSS `color`), quindi segue da solo la modalità chiara/scura del sito
  *   size           altezza massima sullo schermo (predefinito 86vh)
  *   smooth         ammorbidimento del movimento in millisecondi (predefinito 140; 0 = nessuno)
+ *   forward        solo in avanti: scrollando verso il basso si scompone, risalendo non si
+ *                  ricompone. Si riparte da zero solo dopo essere tornati sopra la sezione;
+ *                  arrivando dal basso il dattilogramma è già completo.
  */
 (() => {
   if (customElements.get('dattilogramma-scroll')) return;
@@ -73,7 +76,7 @@
     static get observedAttributes() {
       return ['recipe', 'text', 'seed', 'format', 'shape', 'dir', 'thin', 'repeat', 'over', 'sparse',
               'noise', 'ink', 'cols', 'rows', 'lead', 'length', 'from', 'to', 'start', 'end',
-              'paper', 'size', 'ink-color', 'smooth', 'track', 'reveal'];
+              'paper', 'size', 'ink-color', 'smooth', 'track', 'reveal', 'forward'];
     }
 
     constructor() {
@@ -440,8 +443,13 @@
       const host = this.trackSel ? this.closest(this.trackSel) : null;
       const r = (host || this.track).getBoundingClientRect();
       const travel = r.height - (host ? innerHeight : this.stick.offsetHeight);
-      if (travel <= 0) return r.top <= 0 ? 1 : 0;
-      return clamp01(-r.top / travel);
+      const p = travel <= 0 ? (r.top <= 0 ? 1 : 0) : clamp01(-r.top / travel);
+      if (!this.hasAttribute('forward')) return p;
+      // forward only: keep the furthest point reached; start over once the section is
+      // entirely below the screen again, i.e. the reader has gone back above it
+      if (r.top >= innerHeight || this.reached === undefined) this.reached = p;
+      else this.reached = Math.max(this.reached, p);
+      return this.reached;
     }
     schedule() {
       if (!this.frame) { this.last = performance.now(); this.frame = requestAnimationFrame(this.tick); }
