@@ -375,3 +375,9 @@ a { color: inherit; text-decoration: none; }
 
   .site-nav { gap: 16px; }
 }
+
+/* Animated release once passed or finished: one screen tall like the others (js/animated-release.js) */
+.release.release--animated.is-collapsed {
+  height: 100svh;
+  min-height: 100svh;
+}
