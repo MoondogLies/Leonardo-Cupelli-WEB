@@ -39,6 +39,11 @@ async function loadReleases() {
     </article>
   `).join("");
 
+  // Second section: the Dattilogramma interlude, right after the first release
+  const interlude = document.getElementById("interlude-template");
+  const firstRelease = container.querySelector(".release");
+  if (interlude && firstRelease) firstRelease.after(interlude.content.cloneNode(true));
+
   const articles = [...container.querySelectorAll(".release")];
   articles.forEach(article => {
     loadSpotifyCover(article);
@@ -78,8 +83,12 @@ function updateHeaderContrast(articles) {
   });
 
   if (!active) {
-    header.classList.add("is-dark");
-    header.classList.remove("is-light");
+    // Over the transparent interlude the header follows the site's colour scheme
+    const interlude = document.querySelector(".interlude")?.getBoundingClientRect();
+    const overInterlude = !!interlude && interlude.top <= headerBottom && interlude.bottom > headerBottom;
+    const light = overInterlude && matchMedia("(prefers-color-scheme: light)").matches;
+    header.classList.toggle("is-light", light);
+    header.classList.toggle("is-dark", !light);
     return;
   }
 
