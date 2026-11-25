@@ -13,8 +13,6 @@
   <style>
     html { scroll-snap-type: y mandatory; }
     .release { scroll-snap-align: start; scroll-snap-stop: always; border-top: 0; }
-    /* Dattilogramma: taller than the screen, so the page scrolls freely inside it while the text decomposes */
-    .interlude { scroll-snap-align: start; scroll-snap-stop: always; color: var(--text); background: transparent; }
     .contact { scroll-snap-align: start; scroll-snap-stop: always; min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; padding: 0; border-top: 0; }
     .contact-content { flex: 1; display: grid; place-content: center; padding: 100px 24px 48px; overflow-wrap: anywhere; }
     .contact .site-footer { flex: none; width: 100%; border-top: 0; scroll-snap-align: none; padding-bottom: max(34px, env(safe-area-inset-bottom, 0px)); }
@@ -50,12 +48,6 @@
     <section id="releases" class="releases" aria-label="Releases">
       <div id="release-list"></div>
     </section>
-    <!-- Inserted by js/main.js right after the first release -->
-    <template id="interlude-template">
-      <section class="interlude" aria-label="one step enough for me">
-        <dattilogramma-scroll recipe="DTG1:eyJ2IjoxLCJ0ZXh0Ijoib25lIHN0ZXAgZW5vdWdoIGZvciBtZSIsImZvcm1hdCI6InNxdWFyZSIsInNoYXBlIjoiY2lyY2xlIiwiZGlyIjoiY2VudGVyIiwidGhpbiI6ZmFsc2UsInJlcGVhdCI6dHJ1ZSwic2VlZCI6NywiYW1vdW50IjoxMDAsIm92ZXIiOjMsInNwYXJzZSI6NzgsIm5vaXNlIjo0NSwiaW5rIjo2MiwiY29scyI6NTIsInJvd3MiOjQwLCJsZWFkIjoxNDUsImR1ciI6MjV9" paper="off" length="400vh" size="94vh"></dattilogramma-scroll>
-      </section>
-    </template>
     <section id="contact" class="contact" aria-labelledby="contact-title">
       <div class="contact-content">
         <h2 id="contact-title">Contact</h2>

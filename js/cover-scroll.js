@@ -60,7 +60,7 @@
     schedule();
   }, { rootMargin:'80px' });
   function register() {
-    container.querySelectorAll('.release-cover').forEach(image => {
+    container.querySelectorAll('img.release-cover').forEach(image => {
       if (states.has(image)) return;
       const overlay = document.createElement('div');
       overlay.className = 'cover-blur-copy';
@@ -123,7 +123,7 @@
     setVelocity(window.scrollY);
   });
   container.addEventListener('load',event => {
-    if (!event.target.matches('.release-cover')) return;
+    if (!event.target.matches('img.release-cover')) return;
     schedule();
     window.updateHeaderContrast?.([...container.querySelectorAll('.release')]);
   },true);

@@ -20,7 +20,13 @@
  *   start, end     in che punto dello scroll della sezione (0–100) parte e finisce
  *                  la scomposizione (predefiniti 5 e 80: il resto è pausa)
  *   paper          "on" (predefinito) mostra il foglio; "off" solo segni su fondo trasparente,
- *                  ritagliati attorno al dattilogramma
+ *                  ritagliati attorno al dattilogramma; "reveal" segni su fondo trasparente
+ *                  e, finita la scomposizione, il foglio compare sotto di loro
+ *   reveal         con paper="reveal": inizio e fine della comparsa del foglio, in percentuale
+ *                  dello scroll della sezione (predefinito "82 96")
+ *   track          selettore di un contenitore esterno (cercato con closest) che fa da sezione:
+ *                  il componente riempie il suo box e lo scroll di quel contenitore guida
+ *                  l'animazione. Senza, il componente crea da sé la sezione alta `length`.
  *   ink-color      colore dei segni. Senza foglio, se manca, usa il colore del testo della pagina
  *                  (CSS `color`), quindi segue da solo la modalità chiara/scura del sito
  *   size           altezza massima sullo schermo (predefinito 86vh)
@@ -67,7 +73,7 @@
     static get observedAttributes() {
       return ['recipe', 'text', 'seed', 'format', 'shape', 'dir', 'thin', 'repeat', 'over', 'sparse',
               'noise', 'ink', 'cols', 'rows', 'lead', 'length', 'from', 'to', 'start', 'end',
-              'paper', 'size', 'ink-color', 'smooth'];
+              'paper', 'size', 'ink-color', 'smooth', 'track', 'reveal'];
     }
 
     constructor() {
@@ -79,7 +85,10 @@
           .track { position: relative; }
           .stick { position: sticky; top: 0; height: 100vh; height: 100svh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
           canvas { display: block; height: auto; }
-          :host(:not([paper="off"])) canvas { box-shadow: 0 1px 2px rgba(30,28,25,.14), 0 18px 40px -18px rgba(30,28,25,.3); }
+          :host(:not([paper="off"]):not([paper="reveal"])) canvas { box-shadow: 0 1px 2px rgba(30,28,25,.14), 0 18px 40px -18px rgba(30,28,25,.3); }
+          :host([track]) { height: 100%; }
+          :host([track]) .track, :host([track]) .stick { position: static; height: 100%; }
+          :host([track]) canvas { width: 100%; height: 100%; }
         </style>
         <div class="track"><div class="stick"><canvas role="img"></canvas></div></div>`;
       this.track = root.querySelector('.track');
@@ -151,8 +160,14 @@
       this.from = pct('from', 0); this.to = pct('to', 1);
       this.start = pct('start', .05); this.end = Math.max(this.start + .01, pct('end', .8));
       this.smooth = Math.max(0, +(a('smooth') ?? 140) || 0);
-      this.paper = (a('paper') || 'on') !== 'off';
-      this.track.style.height = a('length') || '300vh';
+      this.paperMode = ['off', 'reveal'].includes(a('paper')) ? a('paper') : 'on';
+      this.paper = this.paperMode !== 'off';   // the whole sheet is kept, paper may show
+      const rv = (a('reveal') || '82 96').split(/[\s,]+/).map(v => clamp01(+v / 100));
+      this.revealA = isNaN(rv[0]) ? .82 : rv[0];
+      this.revealB = Math.max(this.revealA + .01, isNaN(rv[1]) ? .96 : rv[1]);
+      this.rv = 0;
+      this.trackSel = a('track');
+      this.track.style.height = this.trackSel ? '' : (a('length') || '300vh');
       const size = a('size') || '86vh';
       this.cv.setAttribute('aria-label', this.P.text);
 
@@ -168,7 +183,8 @@
       }
       this.cv.style.aspectRatio = `${this.crop.w} / ${this.crop.h}`;
       // CSS size independent of the bitmap size, so the drawing scale can follow the screen
-      this.cv.style.width = `min(96%, calc(${size} * ${(this.crop.w / this.crop.h).toFixed(4)}))`;
+      this.cv.style.width = this.trackSel ? '' : `min(96%, calc(${size} * ${(this.crop.w / this.crop.h).toFixed(4)}))`;
+      this.cv.style.boxShadow = '';
       this.k = 0;           // forces surfaces to be rebuilt at the right scale
       this.drawn = null;
     }
@@ -338,7 +354,16 @@
       }
     }
     inkColor() {
-      return this.getAttribute('ink-color') || (this.paper ? '#1c1b20' : getComputedStyle(this).color);
+      const fixed = this.getAttribute('ink-color');
+      if (fixed) return fixed;
+      if (this.paperMode === 'on') return '#1c1b20';
+      const base = getComputedStyle(this).color;
+      if (this.paperMode !== 'reveal' || !this.rv) return base;
+      // as the paper appears, the page-coloured marks turn into typewriter ink
+      const m = base.match(/[\d.]+/g);
+      if (!m) return '#1c1b20';
+      const t = this.rv, mix = (a, b) => Math.round(+a + (b - a) * t);
+      return `rgb(${mix(m[0], 28)},${mix(m[1], 27)},${mix(m[2], 32)})`;
     }
     // every glyph is rasterised once; frames then only stamp images, far cheaper than fillText
     sprite(ch) {
@@ -393,18 +418,28 @@
       const ctx = this.ctx;
       ctx.globalCompositeOperation = 'source-over';
       ctx.clearRect(0, 0, cw, chh);
-      if (this.paper) {
+      if (this.paperMode === 'on') {
         ctx.drawImage(this.paperC, 0, 0);
         ctx.globalCompositeOperation = 'multiply';
+      } else if (this.paperMode === 'reveal' && this.rv > 0) {
+        ctx.globalAlpha = this.rv;
+        ctx.drawImage(this.paperC, 0, 0);
+        ctx.globalAlpha = 1;
       }
       ctx.drawImage(this.tmpC, 0, 0);
       ctx.globalCompositeOperation = 'source-over';
+      if (this.paperMode === 'reveal' && this.shadowRv !== this.rv) {
+        const r = this.rv;
+        this.cv.style.boxShadow = r ? `0 1px 2px rgba(30,28,25,${(.14 * r).toFixed(3)}), 0 18px 40px -18px rgba(30,28,25,${(.3 * r).toFixed(3)})` : '';
+        this.shadowRv = r;
+      }
     }
 
     // ---------- scroll ----------
     progress() {
-      const r = this.track.getBoundingClientRect();
-      const travel = r.height - this.stick.offsetHeight;
+      const host = this.trackSel ? this.closest(this.trackSel) : null;
+      const r = (host || this.track).getBoundingClientRect();
+      const travel = r.height - (host ? innerHeight : this.stick.offsetHeight);
       if (travel <= 0) return r.top <= 0 ? 1 : 0;
       return clamp01(-r.top / travel);
     }
@@ -414,19 +449,20 @@
     tick(now) {
       this.frame = 0;
       if (!this.k) this.measureScale();
-      const t = clamp01((this.progress() - this.start) / (this.end - this.start));
-      const eased = t * t * (3 - 2 * t);
-      this.target = this.from + (this.to - this.from) * eased;
+      // cur follows the scroll progress of the section with frame-rate independent easing
+      this.target = this.progress();
       if (this.cur === null || !this.smooth || reduceMotion.matches) this.cur = this.target;
       else {
-        // frame-rate independent easing toward the scroll position
         const dt = Math.min(64, now - (this.last || now));
         this.cur += (this.target - this.cur) * (1 - Math.exp(-dt / this.smooth));
-        if (Math.abs(this.target - this.cur) < .0008) this.cur = this.target;
+        if (Math.abs(this.target - this.cur) < .0005) this.cur = this.target;
       }
       this.last = now;
-      if (this.drawn === null || Math.abs(this.cur - this.drawn) > .0004) {
-        this.P.amount = this.cur;
+      if (this.drawn === null || Math.abs(this.cur - this.drawn) > .0003) {
+        const smooth = t => t * t * (3 - 2 * t);
+        this.P.amount = this.from + (this.to - this.from) * smooth(clamp01((this.cur - this.start) / (this.end - this.start)));
+        this.rv = this.paperMode === 'reveal'
+          ? Math.round(smooth(clamp01((this.cur - this.revealA) / (this.revealB - this.revealA))) * 48) / 48 : 0;
         this.render();
         this.drawn = this.cur;
       }
@@ -434,7 +470,9 @@
     }
 
     // amount currently on screen, 0–1 (read-only, handy for debugging)
-    get amount() { return this.cur ?? 0; }
+    get amount() { return this.P ? this.P.amount : 0; }
+    // how much of the paper is showing with paper="reveal", 0–1
+    get reveal() { return this.rv || 0; }
   }
 
   customElements.define('dattilogramma-scroll', DattilogrammaScroll);

@@ -3,7 +3,7 @@ async function loadReleases() {
   const response = await fetch("data/releases.json");
   const releases = await response.json();
 
-  container.innerHTML = releases.map(release => `
+  container.innerHTML = releases.map(release => release.animation ? animatedRelease(release) : `
     <article
       class="release"
       data-spotify-url="${encodeURIComponent(release.spotifyReleaseUrl)}"
@@ -11,6 +11,51 @@ async function loadReleases() {
       data-header-tone="${release.headerTone || "dark"}">
       <img class="release-cover" src="${release.cover}" alt="Cover art for ${release.title}" crossorigin="anonymous">
 
+      ${releaseContent(release)}
+
+      ${scrollCue}
+    </article>
+  `).join("");
+
+  const articles = [...container.querySelectorAll(".release")];
+  articles.forEach(article => {
+    if (!article.classList.contains("release--animated")) loadSpotifyCover(article);
+  });
+
+  updateHeaderContrast(articles);
+  window.addEventListener("scroll", () => updateHeaderContrast(articles), { passive: true });
+  window.addEventListener("resize", () => updateHeaderContrast(articles));
+}
+
+const scrollCue = `
+      <div class="scroll-cue" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 9l6 6 6-6"></path>
+        </svg>
+      </div>`;
+
+// A release whose cover is the Dattilogramma: the section is several screens tall, the cover and
+// text stay pinned while the text decomposes, then the square sheet appears beneath it.
+function animatedRelease(release) {
+  return `
+    <article
+      class="release release--animated"
+      data-spotify-url="${encodeURIComponent(release.spotifyReleaseUrl)}"
+      data-header-tone="${release.headerTone || "auto"}">
+      <div class="release-sticky">
+        <div class="release-cover release-cover--animated" role="img" aria-label="Cover art for ${release.title}">
+          <dattilogramma-scroll recipe="${release.animation}" paper="reveal" track=".release"></dattilogramma-scroll>
+        </div>
+
+        ${releaseContent(release)}
+
+        ${scrollCue}
+      </div>
+    </article>`;
+}
+
+function releaseContent(release) {
+  return `
       <div class="release-content">
         <p class="release-kicker">${release.type} — ${release.year}</p>
         <h2 class="release-title">${release.title}</h2>
@@ -29,29 +74,7 @@ async function loadReleases() {
             </a>
           `).join("")}
         </div>
-      </div>
-
-      <div class="scroll-cue" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M6 9l6 6 6-6"></path>
-        </svg>
-      </div>
-    </article>
-  `).join("");
-
-  // Second section: the Dattilogramma interlude, right after the first release
-  const interlude = document.getElementById("interlude-template");
-  const firstRelease = container.querySelector(".release");
-  if (interlude && firstRelease) firstRelease.after(interlude.content.cloneNode(true));
-
-  const articles = [...container.querySelectorAll(".release")];
-  articles.forEach(article => {
-    loadSpotifyCover(article);
-  });
-
-  updateHeaderContrast(articles);
-  window.addEventListener("scroll", () => updateHeaderContrast(articles), { passive: true });
-  window.addEventListener("resize", () => updateHeaderContrast(articles));
+      </div>`;
 }
 
 async function loadSpotifyCover(article) {
@@ -83,16 +106,12 @@ function updateHeaderContrast(articles) {
   });
 
   if (!active) {
-    // Over the transparent interlude the header follows the site's colour scheme
-    const interlude = document.querySelector(".interlude")?.getBoundingClientRect();
-    const overInterlude = !!interlude && interlude.top <= headerBottom && interlude.bottom > headerBottom;
-    const light = overInterlude && matchMedia("(prefers-color-scheme: light)").matches;
-    header.classList.toggle("is-light", light);
-    header.classList.toggle("is-dark", !light);
+    header.classList.add("is-dark");
+    header.classList.remove("is-light");
     return;
   }
 
-  const tone = getCoverTone(active);
+  const tone = active.dataset.headerTone === "auto" ? animatedTone(active) : getCoverTone(active);
   header.classList.toggle("is-light", tone === "light");
   header.classList.toggle("is-dark", tone !== "light");
 }
@@ -117,6 +136,12 @@ function getCoverTone(article) {
   } catch (error) {
     return article.dataset.headerTone || "dark";
   }
+}
+
+// Header colour over an animated release: dark text on a light page, or once the paper has appeared
+function animatedTone(article) {
+  const paper = article.querySelector("dattilogramma-scroll")?.reveal || 0;
+  return matchMedia("(prefers-color-scheme: light)").matches || paper > .5 ? "light" : "dark";
 }
 
 function slugify(value) {

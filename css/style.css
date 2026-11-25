@@ -120,6 +120,31 @@ a { color: inherit; text-decoration: none; }
   box-shadow: none;
 }
 
+/* Animated release: several screens tall; cover and text stay pinned while the cover animates */
+.release--animated {
+  display: block;
+  height: 400vh;
+  min-height: 0;
+}
+
+.release--animated .release-sticky {
+  position: sticky;
+  top: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: stretch;
+  height: 100svh;
+}
+
+.release--animated:nth-of-type(even) .release-sticky {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.release-cover--animated {
+  color: var(--text);
+  overflow: hidden;
+}
+
 .release-content {
   display: flex;
   flex-direction: column;
@@ -278,6 +303,21 @@ a { color: inherit; text-decoration: none; }
     grid-template-rows: auto minmax(0, 1fr);
     height: 100svh;
     min-height: 100svh;
+    overflow: hidden;
+  }
+
+  .release--animated,
+  .release--animated:nth-of-type(even) {
+    display: block;
+    height: 400vh;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .release--animated .release-sticky,
+  .release--animated:nth-of-type(even) .release-sticky {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
     overflow: hidden;
   }
 
