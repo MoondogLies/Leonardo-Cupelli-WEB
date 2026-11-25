@@ -5,9 +5,9 @@
  *   <script src="dattilogramma-scroll.js" defer></script>
  *   <dattilogramma-scroll recipe="DTG1:..."></dattilogramma-scroll>
  *
- * Il foglio resta fermo al centro dello schermo mentre la sezione scorre:
- * all'inizio il testo è composto, alla fine è scomposto.
- * Con la stessa ricetta (copiata dall'app) il risultato è identico a quello dell'app.
+ * Il dattilogramma resta fermo al centro dello schermo mentre la sezione scorre:
+ * all'inizio il testo è composto, poi si scompone seguendo lo scroll.
+ * Stessa ricetta dell'app, stesso disegno.
  *
  * Attributi
  *   recipe         codice DTG1:… copiato dall'app (consigliato)
@@ -16,11 +16,15 @@
  *                  in alternativa alla ricetta, o per sovrascriverne un valore
  *                  (stessi valori dei cursori dell'app: sparse/noise/ink 0–100, lead 80–200)
  *   length         altezza della sezione, cioè quanto scroll serve (predefinito 300vh)
- *   from, to       scomposizione all'inizio e alla fine dello scroll, 0–100 (predefiniti 0 e 100)
- *   paper          "on" (predefinito) mostra il foglio; "off" solo segni su fondo trasparente
+ *   from, to       scomposizione all'inizio e alla fine, 0–100 (predefiniti 0 e 100)
+ *   start, end     in che punto dello scroll della sezione (0–100) parte e finisce
+ *                  la scomposizione (predefiniti 5 e 80: il resto è pausa)
+ *   paper          "on" (predefinito) mostra il foglio; "off" solo segni su fondo trasparente,
+ *                  ritagliati attorno al dattilogramma
  *   ink-color      colore dei segni. Senza foglio, se manca, usa il colore del testo della pagina
  *                  (CSS `color`), quindi segue da solo la modalità chiara/scura del sito
- *   size           altezza massima del foglio sullo schermo (predefinito 86vh)
+ *   size           altezza massima sullo schermo (predefinito 86vh)
+ *   smooth         ammorbidimento del movimento in millisecondi (predefinito 140; 0 = nessuno)
  */
 (() => {
   if (customElements.get('dattilogramma-scroll')) return;
@@ -47,6 +51,8 @@
     format: 'portrait', shape: 'rect', dir: 'left', thin: true, repeat: true, seed: 7,
     over: 3, sparse: 78, noise: 45, ink: 62, cols: 52, rows: 40, lead: 145,
   };
+  const MAX_PIXELS = 3.2e6;   // cap on the drawing surface, keeps every frame cheap
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
   function decodeRecipe(code) {
     try {
@@ -55,11 +61,13 @@
       return r && r.v === 1 ? r : null;
     } catch { return null; }
   }
+  const clamp01 = v => Math.min(1, Math.max(0, v));
 
   class DattilogrammaScroll extends HTMLElement {
     static get observedAttributes() {
       return ['recipe', 'text', 'seed', 'format', 'shape', 'dir', 'thin', 'repeat', 'over', 'sparse',
-              'noise', 'ink', 'cols', 'rows', 'lead', 'length', 'from', 'to', 'paper', 'size', 'ink-color'];
+              'noise', 'ink', 'cols', 'rows', 'lead', 'length', 'from', 'to', 'start', 'end',
+              'paper', 'size', 'ink-color', 'smooth'];
     }
 
     constructor() {
@@ -69,43 +77,56 @@
         <style>
           :host { display: block; position: relative; }
           .track { position: relative; }
-          .stick { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; justify-content: center; }
-          canvas { display: block; max-width: 92%; height: auto; }
-          :host([paper="on"]) canvas, :host(:not([paper])) canvas { box-shadow: 0 1px 2px rgba(30,28,25,.14), 0 18px 40px -18px rgba(30,28,25,.3); }
+          .stick { position: sticky; top: 0; height: 100vh; height: 100svh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+          canvas { display: block; height: auto; }
+          :host(:not([paper="off"])) canvas { box-shadow: 0 1px 2px rgba(30,28,25,.14), 0 18px 40px -18px rgba(30,28,25,.3); }
         </style>
         <div class="track"><div class="stick"><canvas role="img"></canvas></div></div>`;
       this.track = root.querySelector('.track');
+      this.stick = root.querySelector('.stick');
       this.cv = root.querySelector('canvas');
       this.ctx = this.cv.getContext('2d');
       const mk = () => document.createElement('canvas');
       this.paperC = mk(); this.inkC = mk(); this.tmpC = mk(); this.speckC = mk();
-      this.amount = -1;
-      this.dirty = true;
+      this.cur = null;      // amount on screen
+      this.target = 0;      // amount the scroll asks for
+      this.drawn = null;    // amount last drawn
+      this.atlas = new Map();
+      this.k = 1;
       this.onScroll = () => this.schedule();
+      this.onResize = () => { this.measureScale(); this.schedule(); };
       // redraw when the page switches between light and dark
-      this.onTheme = () => { this.dirty = true; this.schedule(); };
+      this.onTheme = () => { this.atlas.clear(); this.drawn = null; this.schedule(); };
       this.scheme = matchMedia('(prefers-color-scheme: dark)');
       this.themeObserver = new MutationObserver(this.onTheme);
+      this.tick = this.tick.bind(this);
+      this.sizes = new ResizeObserver(this.onResize);
     }
 
     connectedCallback() {
       this.configure();
       addEventListener('scroll', this.onScroll, { passive: true });
-      addEventListener('resize', this.onScroll);
+      addEventListener('resize', this.onResize);
+      visualViewport?.addEventListener('resize', this.onResize);
       this.scheme.addEventListener('change', this.onTheme);
       for (const el of [document.documentElement, document.body])
         this.themeObserver.observe(el, { attributes: true, attributeFilter: ['class', 'data-theme', 'style'] });
-      document.fonts.load('40px "Courier Prime"').catch(() => {}).then(() => { this.dirty = true; this.schedule(); });
+      document.fonts.load('40px "Courier Prime"').catch(() => {}).then(() => { this.atlas.clear(); this.drawn = null; this.schedule(); });
+      this.sizes.observe(this.cv);
+      this.measureScale();
       this.schedule();
     }
     disconnectedCallback() {
+      this.sizes.disconnect();
       removeEventListener('scroll', this.onScroll);
-      removeEventListener('resize', this.onScroll);
+      removeEventListener('resize', this.onResize);
+      visualViewport?.removeEventListener('resize', this.onResize);
       this.scheme.removeEventListener('change', this.onTheme);
       this.themeObserver.disconnect();
+      cancelAnimationFrame(this.frame); this.frame = 0;
     }
     attributeChangedCallback() {
-      if (this.isConnected) { this.configure(); this.schedule(); }
+      if (this.isConnected) { this.configure(); this.measureScale(); this.schedule(); }
     }
 
     // ---------- parameters ----------
@@ -116,6 +137,7 @@
       const num = (n, lo, hi) => Math.min(hi, Math.max(lo, +pick(n, DEFAULTS[n]) || DEFAULTS[n]));
       const bool = n => { const v = pick(n, DEFAULTS[n]); return v === true || v === 'true' || v === '' || v === 'on'; };
       const one = (n, list) => list.includes(pick(n, DEFAULTS[n])) ? pick(n, DEFAULTS[n]) : DEFAULTS[n];
+      const pct = (n, d) => { const v = a(n); return v === null || isNaN(+v) ? d : clamp01(+v / 100); };
       const format = pick('format', DEFAULTS.format) in FORMATS ? pick('format', DEFAULTS.format) : DEFAULTS.format;
       this.P = {
         text: String(pick('text', DEFAULTS.text)),
@@ -126,19 +148,46 @@
         ink: num('ink', 0, 100) / 100, cols: Math.round(num('cols', 24, 90)), rows: Math.round(num('rows', 8, 60)),
         lead: num('lead', 80, 200) / 100, amount: 0,
       };
-      this.from = Math.min(100, Math.max(0, +(a('from') ?? 0))) / 100;
-      this.to = Math.min(100, Math.max(0, +(a('to') ?? 100))) / 100;
+      this.from = pct('from', 0); this.to = pct('to', 1);
+      this.start = pct('start', .05); this.end = Math.max(this.start + .01, pct('end', .8));
+      this.smooth = Math.max(0, +(a('smooth') ?? 140) || 0);
       this.paper = (a('paper') || 'on') !== 'off';
       this.track.style.height = a('length') || '300vh';
-      this.cv.style.maxHeight = a('size') || '86vh';
+      const size = a('size') || '86vh';
       this.cv.setAttribute('aria-label', this.P.text);
 
       const F = FORMATS[format];
       this.W = F.w; this.H = F.h;
-      for (const c of [this.cv, this.paperC, this.inkC, this.tmpC, this.speckC]) { c.width = this.W; c.height = this.H; }
-      this.cv.style.aspectRatio = `${this.W} / ${this.H}`;
-      this.makePaper(); this.makeSpeckle();
-      this.amount = -1; this.dirty = true;
+      this.geometry();
+      // crop: the whole sheet with paper, otherwise just the block plus a margin for stray strikes
+      if (this.paper) this.crop = { x: 0, y: 0, w: this.W, h: this.H };
+      else {
+        const g = this.g, m = Math.max(g.BW, g.BH) * .05;
+        const x = Math.max(0, Math.floor(g.x0 - m)), y = Math.max(0, Math.floor(g.y0 - m));
+        this.crop = { x, y, w: Math.min(this.W, Math.ceil(g.x0 + g.BW + m)) - x, h: Math.min(this.H, Math.ceil(g.y0 + g.BH + m)) - y };
+      }
+      this.cv.style.aspectRatio = `${this.crop.w} / ${this.crop.h}`;
+      // CSS size independent of the bitmap size, so the drawing scale can follow the screen
+      this.cv.style.width = `min(96%, calc(${size} * ${(this.crop.w / this.crop.h).toFixed(4)}))`;
+      this.k = 0;           // forces surfaces to be rebuilt at the right scale
+      this.drawn = null;
+    }
+
+    // drawing scale: match the canvas to the screen's real pixels, within a budget
+    measureScale() {
+      if (!this.crop) return;
+      const cssW = this.cv.getBoundingClientRect().width || this.crop.w;
+      const want = cssW * (devicePixelRatio || 1) / this.crop.w;
+      const cap = Math.sqrt(MAX_PIXELS / (this.crop.w * this.crop.h));
+      const k = Math.max(.5, Math.round(Math.min(want, cap, 2) * 4) / 4);
+      if (k === this.k) return;
+      this.k = k;
+      const cw = Math.round(this.crop.w * k), ch = Math.round(this.crop.h * k);
+      for (const c of [this.cv, this.paperC, this.inkC, this.tmpC, this.speckC]) { c.width = cw; c.height = ch; }
+      this.atlas.clear();
+      if (this.paper) this.makePaper();
+      this.makeSpeckle();
+      this.drawn = null;
     }
 
     // ---------- seeded randomness (identical to the app) ----------
@@ -168,7 +217,7 @@
       }
       const n = this.vnoise(u * 4.2, v * 7) * .65 + this.vnoise(u * 11, v * 17) * .35;
       g += (n - .5) * P.noise * 1.1;
-      g = Math.min(1, Math.max(0, g));
+      g = clamp01(g);
       return g * g * (3 - 2 * g) * .7 + g * .3;
     }
     prep(text) {
@@ -185,23 +234,27 @@
     }
 
     // ---------- layout (identical to the app) ----------
-    build() {
-      const P = this.P, W = this.W, H = this.H, rnd = (k, c) => this.rnd(k, c);
-      const chars = this.prep(P.text);
-      const strikes = [];
-      const F = FORMATS[P.format];
+    geometry() {
+      const P = this.P, W = this.W, H = this.H, F = FORMATS[P.format];
       const shaped = P.shape !== 'rect';
       const D = Math.min(W, H) * .78;
       const pitch = shaped
         ? D / (P.rows * P.lead) * .6
         : Math.min(W * F.bw / P.cols, H * F.bh / (P.rows * P.lead) * .6);
-      const fs = pitch / .6;
-      const lh = fs * P.lead;
-      const BW = shaped ? D : pitch * P.cols;
-      const BH = P.rows * lh;
-      const x0 = (W - BW) / 2 - (shaped ? 0 : W * .015);
-      const y0 = (H - BH) / 2 - (shaped ? 0 : H * .02);
-      this.fs = fs;
+      const fs = pitch / .6, lh = fs * P.lead;
+      const BW = shaped ? D : pitch * P.cols, BH = P.rows * lh;
+      this.g = {
+        shaped, pitch, fs, lh, BW, BH,
+        x0: (W - BW) / 2 - (shaped ? 0 : W * .015),
+        y0: (H - BH) / 2 - (shaped ? 0 : H * .02),
+      };
+      this.chars = this.prep(P.text);
+    }
+    build() {
+      const P = this.P, H = this.H, rnd = (k, c) => this.rnd(k, c);
+      const { shaped, pitch, lh, BW, x0, y0 } = this.g;
+      const chars = this.chars;
+      const strikes = [];
       if (!chars) return strikes;
       const s = P.amount, len = chars.length;
       let k = 0;
@@ -242,7 +295,7 @@
                 let a = .92 + s * ((.28 + .67 * rnd(k, 50 + c)) - .92);
                 if (rnd(k, 60 + c) < .15 * s) a = .08 + .16 * rnd(k, 65 + c);
                 a *= .45 + .75 * P.ink;
-                strikes.push({ x: x0 + x + dx, y: baseY + dy, ch: glyph, a: Math.min(1, a), rot: (rnd(k, 70 + c) - .5) * .07 * s });
+                strikes.push(x0 + x + dx, baseY + dy, Math.min(1, a), (rnd(k, 70 + c) - .5) * .07 * s, glyph);
               }
             }
           }
@@ -253,11 +306,12 @@
       return strikes;
     }
 
-    // ---------- surfaces (identical to the app) ----------
+    // ---------- surfaces ----------
     makePaper() {
-      const W = this.W, H = this.H, p = this.paperC.getContext('2d', { willReadFrequently: true });
-      p.fillStyle = '#ecebe6'; p.fillRect(0, 0, W, H);
-      const img = p.getImageData(0, 0, W, H), d = img.data;
+      const cw = this.paperC.width, ch = this.paperC.height;
+      const p = this.paperC.getContext('2d', { willReadFrequently: true });
+      p.fillStyle = '#ecebe6'; p.fillRect(0, 0, cw, ch);
+      const img = p.getImageData(0, 0, cw, ch), d = img.data;
       let s = (Math.imul(this.P.seed, 2654435761) >>> 1) || 12345;
       for (let i = 0; i < d.length; i += 4) {
         s = (Math.imul(s, 1103515245) + 12345) & 0x7fffffff;
@@ -265,50 +319,80 @@
         d[i] += n; d[i + 1] += n; d[i + 2] += n + 1;
       }
       p.putImageData(img, 0, 0);
-      const gr = p.createRadialGradient(W / 2, H / 2, H * .25, W / 2, H / 2, H * .8);
+      const gr = p.createRadialGradient(cw / 2, ch / 2, ch * .25, cw / 2, ch / 2, ch * .8);
       gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(1, 'rgba(120,115,105,.10)');
-      p.fillStyle = gr; p.fillRect(0, 0, W, H);
+      p.fillStyle = gr; p.fillRect(0, 0, cw, ch);
     }
+    // ribbon wear: the same seeded dots as the app, mapped onto the cropped, scaled surface
     makeSpeckle() {
-      const W = this.W, H = this.H, sp = this.speckC.getContext('2d');
-      sp.clearRect(0, 0, W, H);
+      const sp = this.speckC.getContext('2d'), k = this.k, c = this.crop, W = this.W, H = this.H;
+      sp.setTransform(1, 0, 0, 1, 0, 0);
+      sp.clearRect(0, 0, this.speckC.width, this.speckC.height);
       let s = 987 + (this.P.seed * 7919) % 2147483000;
       const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
       for (let i = 0; i < 90000; i++) {
-        sp.fillStyle = `rgba(0,0,0,${(.15 + r() * .6).toFixed(2)})`;
-        const rr = .4 + r() * 1.1;
-        sp.fillRect(r() * W, r() * H, rr, rr);
+        const alpha = .15 + r() * .6, rr = .4 + r() * 1.1, x = r() * W, y = r() * H;
+        if (x < c.x - 2 || y < c.y - 2 || x > c.x + c.w || y > c.y + c.h) continue;
+        sp.fillStyle = `rgba(0,0,0,${alpha.toFixed(2)})`;
+        sp.fillRect((x - c.x) * k, (y - c.y) * k, rr * k, rr * k);
       }
     }
+    inkColor() {
+      return this.getAttribute('ink-color') || (this.paper ? '#1c1b20' : getComputedStyle(this).color);
+    }
+    // every glyph is rasterised once; frames then only stamp images, far cheaper than fillText
+    sprite(ch) {
+      let s = this.atlas.get(ch);
+      if (s) return s;
+      // tight box around one monospace cell: ascender + descender + a little room for the ink bleed
+      const k = this.k, fs = this.g.fs, pad = fs * .07, asc = fs * .82, desc = fs * .3;
+      const w = fs * .62 + pad * 2, h = asc + desc + pad * 2;
+      const c = document.createElement('canvas');
+      c.width = Math.ceil(w * k); c.height = Math.ceil(h * k);
+      const x = c.getContext('2d');
+      x.setTransform(k, 0, 0, k, 0, 0);
+      x.font = `${fs.toFixed(2)}px "Courier Prime", "Courier New", monospace`;
+      x.fillStyle = this.color;
+      x.textBaseline = 'alphabetic';
+      // the ink bleed (a faint copy nudged right and down) is baked into the sprite: one stamp per strike
+      x.globalAlpha = .3; x.fillText(ch, pad + .7, pad + asc + .4);
+      x.globalAlpha = 1; x.fillText(ch, pad, pad + asc);
+      s = { img: c, ox: pad, oy: pad + asc, w: c.width / k, h: c.height / k };
+      this.atlas.set(ch, s);
+      return s;
+    }
     render() {
-      const W = this.W, H = this.H, P = this.P;
-      const strikes = this.build();
+      const k = this.k, c = this.crop, cw = this.cv.width, chh = this.cv.height;
+      const color = this.inkColor();
+      if (color !== this.color) { this.color = color; this.atlas.clear(); }
+      const st = this.build();
       const ic = this.inkC.getContext('2d');
-      ic.clearRect(0, 0, W, H);
-      ic.font = `${this.fs.toFixed(2)}px "Courier Prime", "Courier New", monospace`;
-      ic.fillStyle = this.getAttribute('ink-color') || (this.paper ? '#1c1b20' : getComputedStyle(this).color);
-      ic.textBaseline = 'alphabetic';
-      for (const st of strikes) {
-        ic.save();
-        ic.translate(st.x, st.y);
-        if (st.rot) ic.rotate(st.rot);
-        ic.globalAlpha = st.a; ic.fillText(st.ch, 0, 0);
-        ic.globalAlpha = st.a * .3; ic.fillText(st.ch, .7, .4);
-        ic.restore();
+      ic.setTransform(1, 0, 0, 1, 0, 0);
+      ic.globalAlpha = 1;
+      ic.clearRect(0, 0, cw, chh);
+      for (let i = 0; i < st.length; i += 5) {
+        const sp = this.sprite(st[i + 4]), rot = st[i + 3];
+        const cos = Math.cos(rot) * k, sin = Math.sin(rot) * k;
+        ic.setTransform(cos, sin, -sin, cos, (st[i] - c.x) * k, (st[i + 1] - c.y) * k);
+        ic.globalAlpha = st[i + 2];
+        ic.drawImage(sp.img, -sp.ox, -sp.oy, sp.w, sp.h);
       }
+      ic.setTransform(1, 0, 0, 1, 0, 0);
+      ic.globalAlpha = 1;
+
       const tc = this.tmpC.getContext('2d');
-      tc.clearRect(0, 0, W, H);
       tc.globalCompositeOperation = 'source-over';
+      tc.clearRect(0, 0, cw, chh);
       tc.drawImage(this.inkC, 0, 0);
       tc.globalCompositeOperation = 'destination-out';
-      tc.globalAlpha = .55 + (1 - P.ink) * .4;
+      tc.globalAlpha = .55 + (1 - this.P.ink) * .4;
       tc.drawImage(this.speckC, 0, 0);
       tc.globalAlpha = 1;
       tc.globalCompositeOperation = 'source-over';
 
       const ctx = this.ctx;
       ctx.globalCompositeOperation = 'source-over';
-      ctx.clearRect(0, 0, W, H);
+      ctx.clearRect(0, 0, cw, chh);
       if (this.paper) {
         ctx.drawImage(this.paperC, 0, 0);
         ctx.globalCompositeOperation = 'multiply';
@@ -320,23 +404,37 @@
     // ---------- scroll ----------
     progress() {
       const r = this.track.getBoundingClientRect();
-      const travel = r.height - innerHeight;
+      const travel = r.height - this.stick.offsetHeight;
       if (travel <= 0) return r.top <= 0 ? 1 : 0;
-      return Math.min(1, Math.max(0, -r.top / travel));
+      return clamp01(-r.top / travel);
     }
     schedule() {
-      if (this.queued) return;
-      this.queued = true;
-      requestAnimationFrame(() => {
-        this.queued = false;
-        const t = this.progress();
-        const amount = Math.round((this.from + (this.to - this.from) * t) * 1000) / 1000;
-        if (amount === this.amount && !this.dirty) return;
-        this.amount = amount; this.dirty = false;
-        this.P.amount = amount;
-        this.render();
-      });
+      if (!this.frame) { this.last = performance.now(); this.frame = requestAnimationFrame(this.tick); }
     }
+    tick(now) {
+      this.frame = 0;
+      if (!this.k) this.measureScale();
+      const t = clamp01((this.progress() - this.start) / (this.end - this.start));
+      const eased = t * t * (3 - 2 * t);
+      this.target = this.from + (this.to - this.from) * eased;
+      if (this.cur === null || !this.smooth || reduceMotion.matches) this.cur = this.target;
+      else {
+        // frame-rate independent easing toward the scroll position
+        const dt = Math.min(64, now - (this.last || now));
+        this.cur += (this.target - this.cur) * (1 - Math.exp(-dt / this.smooth));
+        if (Math.abs(this.target - this.cur) < .0008) this.cur = this.target;
+      }
+      this.last = now;
+      if (this.drawn === null || Math.abs(this.cur - this.drawn) > .0004) {
+        this.P.amount = this.cur;
+        this.render();
+        this.drawn = this.cur;
+      }
+      if (this.cur !== this.target) { this.frame = requestAnimationFrame(this.tick); }
+    }
+
+    // amount currently on screen, 0–1 (read-only, handy for debugging)
+    get amount() { return this.cur ?? 0; }
   }
 
   customElements.define('dattilogramma-scroll', DattilogrammaScroll);
