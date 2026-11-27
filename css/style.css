@@ -241,10 +241,23 @@ img.release-cover.is-loaded { opacity: 1; }
   font-style: normal;
   letter-spacing: 0;
   text-transform: none;
-  transition: transform .2s ease, filter .2s ease;
+  transition: transform 160ms var(--ease-out), filter .2s ease;
 }
 
-.stream-link:hover { transform: translateY(-2px); filter: brightness(1.08); }
+/* Press feedback everywhere; the hover lift only with a mouse, so it does not stick after a tap */
+.stream-link:active { transform: scale(.97); }
+
+@media (hover: hover) and (pointer: fine) {
+  .stream-link:hover { transform: translateY(-2px); filter: brightness(1.08); }
+  .stream-link:hover:active { transform: translateY(-2px) scale(.97); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stream-link,
+  .stream-link:active,
+  .stream-link:hover,
+  .stream-link:hover:active { transform: none; }
+}
 .stream-link svg { width: 20px; height: 20px; flex: none; }
 
 .stream-link--spotify {
