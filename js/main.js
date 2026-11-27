@@ -9,7 +9,7 @@ async function loadReleases() {
       data-spotify-url="${encodeURIComponent(release.spotifyReleaseUrl)}"
       data-fallback-cover="${release.cover}"
       data-header-tone="${release.headerTone || "dark"}">
-      <img class="release-cover" src="${release.cover}" alt="Cover art for ${release.title}" crossorigin="anonymous">
+      <img class="release-cover" alt="Cover art for ${release.title}" crossorigin="anonymous">
 
       ${releaseContent(release)}
 
@@ -79,10 +79,17 @@ function releaseContent(release) {
       </div>`;
 }
 
+// The cover gets its source only once (Spotify, or the local file if that fails), so it never
+// swaps from one image to another; it fades in when that first image has loaded.
 async function loadSpotifyCover(article) {
   const image = article.querySelector(".release-cover");
   const spotifyUrl = article.dataset.spotifyUrl;
   const fallback = article.dataset.fallbackCover;
+
+  image.addEventListener("load", () => image.classList.add("is-loaded"), { once: true });
+  image.addEventListener("error", () => {
+    if (fallback && image.getAttribute("src") !== fallback) image.src = fallback;
+  });
 
   try {
     const response = await fetch(`https://open.spotify.com/oembed?url=${spotifyUrl}`);
@@ -96,7 +103,7 @@ async function loadSpotifyCover(article) {
     console.warn("Spotify cover lookup failed:", error);
   }
 
-  image.src = fallback;
+  if (fallback) image.src = fallback;
 }
 
 function updateHeaderContrast(articles) {
