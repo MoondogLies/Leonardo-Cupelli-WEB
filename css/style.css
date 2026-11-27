@@ -134,6 +134,30 @@ img.release-cover.is-loaded { opacity: 1; }
   img.release-cover { transition: opacity 150ms var(--ease-out); }
 }
 
+/* First release on page load: kicker, title, meta and buttons settle in one after the other.
+   Runs once per visit (js/main.js adds .is-entering); the buttons stay clickable throughout. */
+.release.is-entering .release-content > * {
+  animation: release-enter 400ms var(--ease-out) both;
+}
+
+.release.is-entering .release-content > :nth-child(2) { animation-delay: 50ms; }
+.release.is-entering .release-content > :nth-child(3) { animation-delay: 90ms; }
+.release.is-entering .release-content > :nth-child(4) { animation-delay: 140ms; }
+
+@keyframes release-enter {
+  from { opacity: 0; transform: translateY(8px); }
+}
+
+@keyframes release-enter-fade {
+  from { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .release.is-entering .release-content > * {
+    animation: release-enter-fade 200ms var(--ease-out) both;
+  }
+}
+
 /* Animated release: several screens tall; cover and text stay pinned while the cover animates */
 .release--animated {
   display: block;
@@ -217,10 +241,23 @@ img.release-cover.is-loaded { opacity: 1; }
   font-style: normal;
   letter-spacing: 0;
   text-transform: none;
-  transition: transform .2s ease, filter .2s ease;
+  transition: transform 160ms var(--ease-out), filter .2s ease;
 }
 
-.stream-link:hover { transform: translateY(-2px); filter: brightness(1.08); }
+/* Press feedback everywhere; the hover lift only with a mouse, so it does not stick after a tap */
+.stream-link:active { transform: scale(.97); }
+
+@media (hover: hover) and (pointer: fine) {
+  .stream-link:hover { transform: translateY(-2px); filter: brightness(1.08); }
+  .stream-link:hover:active { transform: translateY(-2px) scale(.97); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stream-link,
+  .stream-link:active,
+  .stream-link:hover,
+  .stream-link:hover:active { transform: none; }
+}
 .stream-link svg { width: 20px; height: 20px; flex: none; }
 
 .stream-link--spotify {
