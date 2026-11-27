@@ -22,3 +22,26 @@ html { scroll-snap-type: none; }
   .archive-title { top:66.6667%; left:clamp(22px,6vw,80px); transform:translateY(-50%) rotate(-90deg); transform-origin:left center; font-size:clamp(2.2rem,7vw,3.4rem); }
   .release-index { margin-left:clamp(58px,18vw,110px); }
 }
+
+/* Entries settle in once the list has loaded: the first eight one after the other, the rest at once */
+.archive-entry { animation:archive-enter 300ms var(--ease-out) both; }
+.archive-entry:nth-child(2) { animation-delay:40ms; }
+.archive-entry:nth-child(3) { animation-delay:80ms; }
+.archive-entry:nth-child(4) { animation-delay:120ms; }
+.archive-entry:nth-child(5) { animation-delay:160ms; }
+.archive-entry:nth-child(6) { animation-delay:200ms; }
+.archive-entry:nth-child(7) { animation-delay:240ms; }
+.archive-entry:nth-child(8) { animation-delay:280ms; }
+@keyframes archive-enter { from { opacity:0; transform:translateY(6px); } }
+@keyframes archive-enter-fade { from { opacity:0; } }
+
+/* The vertical title waits for its final position (releases.html adds .is-placed), then fades in;
+   only with scripting on, so it is never hidden for good */
+@media (scripting: enabled) {
+  .archive-title { opacity:0; transition:opacity 250ms var(--ease-out); }
+  .archive-title.is-placed { opacity:1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-entry { animation-name:archive-enter-fade; animation-duration:200ms; }
+}

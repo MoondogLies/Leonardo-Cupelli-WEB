@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=2">
-  <link rel="stylesheet" href="css/archive.css?v=3">
+  <link rel="stylesheet" href="css/style.css?v=3">
+  <link rel="stylesheet" href="css/archive.css?v=4">
   <link rel="stylesheet" href="css/grain.css?v=2">
   <style>
     .archive-page .archive-header { min-height: calc(max(20px, env(safe-area-inset-top, 0px)) + 64px); }
@@ -56,6 +56,8 @@
           if (!first) return;
           const top = first.getBoundingClientRect().top + window.scrollY;
           title.style.setProperty('--archive-title-top', `${top}px`);
+          // shown once the fonts have settled, so it does not move after appearing
+          if (document.fonts.status === 'loaded') title.classList.add('is-placed');
         });
       }
       new MutationObserver(schedule).observe(list, { childList: true });
