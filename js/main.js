@@ -17,6 +17,9 @@ async function loadReleases() {
     </article>
   `).join("");
 
+  // first screen of the visit: its text settles in instead of appearing all at once (css/style.css)
+  container.querySelector(".release")?.classList.add("is-entering");
+
   const articles = [...container.querySelectorAll(".release")];
   articles.forEach(article => {
     if (!article.classList.contains("release--animated")) loadSpotifyCover(article);
