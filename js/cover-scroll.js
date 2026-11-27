@@ -24,7 +24,7 @@
     };
   }
   const style = document.createElement('style');
-  style.textContent = `.release { position:relative; } .release-cover { filter:none!important; opacity:1!important; } .cover-blur-copy { position:absolute; pointer-events:none; z-index:1; overflow:hidden; mask-image:var(--edge-mask); -webkit-mask-image:var(--edge-mask); } .cover-blur-copy img { display:block; width:100%; height:100%; object-fit:cover; filter:blur(8px); transform:scale(1.035); } .scroll-cue { z-index:2; } .release-cover { --motion-blur:0px; filter:blur(var(--motion-blur))!important; transition:filter .12s linear; will-change:filter; } @media(prefers-reduced-motion:reduce) { .cover-blur-copy { display:none; } .release-cover { --motion-blur:0px; filter:none!important; transition:none; will-change:auto; } }`;
+  style.textContent = `.release { position:relative; } .release-cover { filter:none!important; } .cover-blur-copy { position:absolute; opacity:0; transition:opacity 400ms var(--ease-out); pointer-events:none; z-index:1; overflow:hidden; mask-image:var(--edge-mask); -webkit-mask-image:var(--edge-mask); } .cover-blur-copy img { display:block; width:100%; height:100%; object-fit:cover; filter:blur(8px); transform:scale(1.035); } .release-cover.is-loaded ~ .cover-blur-copy { opacity:1; } .scroll-cue { z-index:2; } .release-cover { --motion-blur:0px; filter:blur(var(--motion-blur))!important; transition:filter .12s linear; will-change:filter; } @media(prefers-reduced-motion:reduce) { .cover-blur-copy { display:none; } .release-cover { --motion-blur:0px; filter:none!important; transition:none; will-change:auto; } }`;
   document.head.append(style);
   const container = document.getElementById('release-list');
   const states = new Map();
