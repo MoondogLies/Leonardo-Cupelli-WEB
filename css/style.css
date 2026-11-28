@@ -320,6 +320,15 @@ img.release-cover.is-loaded { opacity: 1; }
   50% { transform: translate(-50%, 6px); opacity: .9; }
 }
 
+@keyframes scroll-cue-fade {
+  0%, 100% { opacity: .45; }
+  50% { opacity: .9; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-cue { animation-name: scroll-cue-fade; }
+}
+
 .contact {
   min-height: 70svh;
   display: grid;

@@ -1,6 +1,6 @@
 # 002 — Scroll cue: no movement with reduced motion
 
-- **Status**: TODO
+- **Status**: DONE
 - **Commit**: 8d90252
 - **Severity**: MEDIUM
 - **Category**: Accessibility
