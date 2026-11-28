@@ -28,6 +28,20 @@
   }
 }
 
+/* Moving between the home page and the Discography: a short crossfade instead of a hard cut
+   (cross-document view transitions; browsers without them just navigate as before) */
+@view-transition { navigation: auto; }
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 250ms;
+  animation-timing-function: cubic-bezier(.22, .61, .36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+}
+
 * { box-sizing: border-box; }
 
 body {
