@@ -23,15 +23,16 @@ html { scroll-snap-type: none; }
   .release-index { margin-left:clamp(58px,18vw,110px); }
 }
 
-/* Entries settle in once the list has loaded: the first eight one after the other, the rest at once */
+/* Entries settle in once the list has loaded: the first eight one after the other, with gaps that
+   shrink as the list goes on; the rest at once */
 .archive-entry { animation:archive-enter 300ms var(--ease-out) both; }
 .archive-entry:nth-child(2) { animation-delay:40ms; }
-.archive-entry:nth-child(3) { animation-delay:80ms; }
-.archive-entry:nth-child(4) { animation-delay:120ms; }
-.archive-entry:nth-child(5) { animation-delay:160ms; }
-.archive-entry:nth-child(6) { animation-delay:200ms; }
-.archive-entry:nth-child(7) { animation-delay:240ms; }
-.archive-entry:nth-child(8) { animation-delay:280ms; }
+.archive-entry:nth-child(3) { animation-delay:75ms; }
+.archive-entry:nth-child(4) { animation-delay:105ms; }
+.archive-entry:nth-child(5) { animation-delay:130ms; }
+.archive-entry:nth-child(6) { animation-delay:150ms; }
+.archive-entry:nth-child(7) { animation-delay:165ms; }
+.archive-entry:nth-child(8) { animation-delay:175ms; }
 @keyframes archive-enter { from { opacity:0; transform:translateY(6px); } }
 @keyframes archive-enter-fade { from { opacity:0; } }
 
