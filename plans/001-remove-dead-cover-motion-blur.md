@@ -1,6 +1,6 @@
 # 001 — Remove the cover motion blur that never applies
 
-- **Status**: TODO
+- **Status**: DONE
 - **Commit**: 8d90252
 - **Severity**: MEDIUM
 - **Category**: Performance

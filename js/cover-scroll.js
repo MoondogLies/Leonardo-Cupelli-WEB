@@ -24,33 +24,13 @@
     };
   }
   const style = document.createElement('style');
-  style.textContent = `.release { position:relative; } .release-cover { filter:none!important; } .cover-blur-copy { position:absolute; opacity:0; transition:opacity 400ms var(--ease-out); pointer-events:none; z-index:1; overflow:hidden; mask-image:var(--edge-mask); -webkit-mask-image:var(--edge-mask); } .cover-blur-copy img { display:block; width:100%; height:100%; object-fit:cover; filter:blur(8px); transform:scale(1.035); } .release-cover.is-loaded ~ .cover-blur-copy { opacity:1; } .scroll-cue { z-index:2; } .release-cover { --motion-blur:0px; filter:blur(var(--motion-blur))!important; transition:filter .12s linear; will-change:filter; } @media(prefers-reduced-motion:reduce) { .cover-blur-copy { display:none; } .release-cover { --motion-blur:0px; filter:none!important; transition:none; will-change:auto; } }`;
+  style.textContent = `.release { position:relative; } .release-cover { filter:none!important; } .cover-blur-copy { position:absolute; opacity:0; transition:opacity 400ms var(--ease-out); pointer-events:none; z-index:1; overflow:hidden; mask-image:var(--edge-mask); -webkit-mask-image:var(--edge-mask); } .cover-blur-copy img { display:block; width:100%; height:100%; object-fit:cover; filter:blur(8px); transform:scale(1.035); } .release-cover.is-loaded ~ .cover-blur-copy { opacity:1; } .scroll-cue { z-index:2; } @media(prefers-reduced-motion:reduce) { .cover-blur-copy { display:none; } }`;
   document.head.append(style);
   const container = document.getElementById('release-list');
   const states = new Map();
   let frame = 0;
-  let lastY = window.scrollY;
-  let lastTime = performance.now();
-  let velocity = 0;
-  let idleTimer = 0;
   function schedule() {
     if (!frame) frame = requestAnimationFrame(update);
-  }
-  function setVelocity(next) {
-    const now = performance.now();
-    const delta = Math.max(1, now - lastTime);
-    const raw = (next - lastY) / delta * 16.667;
-    lastY = next;
-    lastTime = now;
-    velocity = velocity * .8 + raw * .2;
-    const strength = Math.min(1, Math.abs(velocity) / 80);
-    document.documentElement.style.setProperty('--scroll-motion-blur', `${(strength * 2.2).toFixed(2)}px`);
-    clearTimeout(idleTimer);
-    idleTimer = setTimeout(() => {
-      velocity = 0;
-      document.documentElement.style.setProperty('--scroll-motion-blur', '0px');
-    }, 90);
-    schedule();
   }
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
@@ -114,14 +94,10 @@
     });
   }
   new MutationObserver(register).observe(container,{ childList:true,subtree:true });
-  window.addEventListener('scroll',() => {
-    setVelocity(window.scrollY);
-  },{ passive:true });
+  window.addEventListener('scroll',schedule,{ passive:true });
   window.addEventListener('resize',schedule);
   window.visualViewport?.addEventListener('resize',schedule);
-  window.visualViewport?.addEventListener('scroll',() => {
-    setVelocity(window.scrollY);
-  });
+  window.visualViewport?.addEventListener('scroll',schedule);
   container.addEventListener('load',event => {
     if (!event.target.matches('img.release-cover')) return;
     schedule();

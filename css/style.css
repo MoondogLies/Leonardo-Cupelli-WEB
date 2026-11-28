@@ -138,8 +138,7 @@ a { color: inherit; text-decoration: none; }
 /* Photographic covers fade in once their image has loaded (js/main.js adds .is-loaded) */
 img.release-cover {
   opacity: 0;
-  /* keeps the scroll motion-blur transition from js/cover-scroll.js */
-  transition: opacity 400ms var(--ease-out), filter .12s linear;
+  transition: opacity 400ms var(--ease-out);
 }
 
 img.release-cover.is-loaded { opacity: 1; }
