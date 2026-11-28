@@ -35,7 +35,7 @@
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 250ms;
-  animation-timing-function: cubic-bezier(.22, .61, .36, 1);
+  animation-timing-function: var(--ease-out);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -56,6 +56,32 @@ body {
 
 a { color: inherit; text-decoration: none; }
 
+/* Phones: no grey flash on tap (every control has its own :active state instead), no font
+   inflation in landscape, no double-tap-zoom wait on links and buttons, and long-pressing a
+   control does not select its label or open the link callout */
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+a, button { touch-action: manipulation; }
+
+.stream-link,
+.site-nav a,
+.header-top,
+.back-home {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Press feedback for the header controls: dim while the finger is down, like native bar buttons */
+.site-nav a:active,
+.site-header .header-top.is-visible:active,
+.back-home:active,
+.archive-release-link:active { opacity: .6; }
+
 .site-header {
   position: fixed;
   inset: 0 0 auto 0;
@@ -64,6 +90,9 @@ a { color: inherit; text-decoration: none; }
   align-items: center;
   justify-content: flex-end;
   padding: 22px clamp(24px, 6vw, 80px);
+  padding-top: max(22px, env(safe-area-inset-top, 0px));
+  padding-right: max(clamp(24px, 6vw, 80px), env(safe-area-inset-right, 0px));
+  padding-left: max(clamp(24px, 6vw, 80px), env(safe-area-inset-left, 0px));
   background: transparent;
   border: 0;
   backdrop-filter: none;
@@ -82,15 +111,6 @@ a { color: inherit; text-decoration: none; }
   font-style: normal;
   text-transform: uppercase;
   letter-spacing: .18em;
-}
-
-.site-nav a {
-  transition: transform .3s cubic-bezier(.22,.61,.36,1);
-}
-
-.site-nav a:hover,
-.site-nav a:focus-visible {
-  transform: scale(1.08);
 }
 
 .viewport-fade {
@@ -138,8 +158,7 @@ a { color: inherit; text-decoration: none; }
 /* Photographic covers fade in once their image has loaded (js/main.js adds .is-loaded) */
 img.release-cover {
   opacity: 0;
-  /* keeps the scroll motion-blur transition from js/cover-scroll.js */
-  transition: opacity 400ms var(--ease-out), filter .12s linear;
+  transition: opacity 400ms var(--ease-out);
 }
 
 img.release-cover.is-loaded { opacity: 1; }
@@ -300,7 +319,7 @@ img.release-cover.is-loaded { opacity: 1; }
 
 .scroll-cue {
   position: absolute;
-  bottom: 18px;
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%);
   width: 22px;
@@ -319,6 +338,15 @@ img.release-cover.is-loaded { opacity: 1; }
 @keyframes scroll-cue {
   0%, 100% { transform: translate(-50%, 0); opacity: .45; }
   50% { transform: translate(-50%, 6px); opacity: .9; }
+}
+
+@keyframes scroll-cue-fade {
+  0%, 100% { opacity: .45; }
+  50% { opacity: .9; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-cue { animation-name: scroll-cue-fade; }
 }
 
 .contact {
@@ -400,7 +428,7 @@ img.release-cover.is-loaded { opacity: 1; }
   .release-content {
     justify-content: center;
     gap: 14px;
-    padding: 18px 22px 52px;
+    padding: 18px max(22px, env(safe-area-inset-right, 0px)) 52px max(22px, env(safe-area-inset-left, 0px));
   }
 
   .release-kicker {
@@ -433,7 +461,7 @@ img.release-cover.is-loaded { opacity: 1; }
   .stream-link svg { width: 16px; height: 16px; }
 
   .scroll-cue {
-    bottom: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     width: 18px;
     height: 18px;
   }
