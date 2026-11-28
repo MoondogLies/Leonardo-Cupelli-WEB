@@ -16,6 +16,7 @@
   --apple-red: #fa243c;
   --youtube-red: #ff0000;
   --ease-out: cubic-bezier(.22, .61, .36, 1);
+  --ease-in-out: cubic-bezier(.77, 0, .175, 1);
 }
 
 @media (prefers-color-scheme: light) {
@@ -38,8 +39,10 @@
   animation-timing-function: var(--ease-out);
 }
 
+/* Reduced motion keeps the crossfade (opacity only, no movement), just shorter */
 @media (prefers-reduced-motion: reduce) {
-  @view-transition { navigation: none; }
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation-duration: 150ms; }
 }
 
 * { box-sizing: border-box; }
@@ -76,11 +79,10 @@ a, button { touch-action: manipulation; }
   -webkit-touch-callout: none;
 }
 
-/* Press feedback for the header controls: dim while the finger is down, like native bar buttons */
-.site-nav a:active,
-.site-header .header-top.is-visible:active,
-.back-home:active,
-.archive-release-link:active { opacity: .6; }
+/* Press feedback, like native bar buttons: dim at once while the finger is down, fade back on
+   release. Header controls do the same in css/header-interactions.css. */
+.archive-release-link { transition: opacity 200ms var(--ease-out); }
+.archive-release-link:active { opacity: .6; transition-duration: 0s; }
 
 .site-header {
   position: fixed;
@@ -170,7 +172,7 @@ img.release-cover.is-loaded { opacity: 1; }
 /* First release on page load: kicker, title, meta and buttons settle in one after the other.
    Runs once per visit (js/main.js adds .is-entering); the buttons stay clickable throughout. */
 .release.is-entering .release-content > * {
-  animation: release-enter 400ms var(--ease-out) both;
+  animation: release-enter 300ms var(--ease-out) both;
 }
 
 .release.is-entering .release-content > :nth-child(2) { animation-delay: 50ms; }

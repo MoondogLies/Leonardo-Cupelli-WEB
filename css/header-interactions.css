@@ -1,15 +1,31 @@
+/* Header controls. Transition lists are written out in full so the :active rules can set
+   per-property durations: pressing dims instantly, releasing fades back over 200ms. */
 .site-header .site-nav a,
 .archive-header .back-home {
   display: inline-block;
   transform-origin: center;
-  transition: transform .3s var(--ease-out);
+  transition: transform .3s var(--ease-out), opacity 200ms var(--ease-out);
 }
 .archive-header .back-home { display: grid; }
+.site-header .site-nav a:active,
+.archive-header .back-home:active {
+  opacity: .6;
+  transition-duration: .3s, 0s;
+}
+
+/* Back-to-top: appears over 250ms, leaves faster over 200ms (visibility waits for the fade) */
 .site-header .header-top {
   transform-origin: center;
-  transition: transform .3s var(--ease-out), opacity .3s ease, visibility 0s linear .3s;
+  transition: transform .3s var(--ease-out), opacity 200ms var(--ease-out), visibility 0s linear 200ms;
 }
-.site-header .header-top.is-visible { transition-delay: 0s; }
+.site-header .header-top.is-visible {
+  transition: transform .3s var(--ease-out), opacity 250ms var(--ease-out), visibility 0s;
+}
+.site-header .header-top.is-visible:active {
+  opacity: .6;
+  transition-duration: .3s, 0s, 0s;
+}
+
 .site-header .site-nav a:hover,
 .site-header .site-nav a:focus-visible,
 .site-header .header-top:hover,
@@ -34,5 +50,6 @@
 @media (prefers-reduced-motion: reduce) {
   .site-header .site-nav a,
   .site-header .header-top,
+  .site-header .header-top.is-visible,
   .archive-header .back-home { transition: none; }
 }
