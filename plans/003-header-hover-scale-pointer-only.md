@@ -1,6 +1,6 @@
 # 003 — Header links: grow on hover only with a mouse
 
-- **Status**: TODO
+- **Status**: DONE
 - **Commit**: 8d90252
 - **Severity**: MEDIUM
 - **Category**: Accessibility

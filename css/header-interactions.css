@@ -17,8 +17,19 @@
 .archive-header .back-home:hover,
 .archive-header .back-home:focus-visible {
   color: inherit;
-  transform: scale(1.08);
   text-decoration: none;
+}
+.site-header .site-nav a:focus-visible,
+.site-header .header-top:focus-visible,
+.archive-header .back-home:focus-visible {
+  transform: scale(1.08);
+}
+@media (hover: hover) and (pointer: fine) {
+  .site-header .site-nav a:hover,
+  .site-header .header-top:hover,
+  .archive-header .back-home:hover {
+    transform: scale(1.08);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .site-header .site-nav a,
