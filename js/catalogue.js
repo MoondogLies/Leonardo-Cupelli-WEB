@@ -64,8 +64,10 @@
       list.replaceChildren(fragment);
       status.textContent = releases.length ? '' : 'Nessuna release disponibile.';
       status.hidden = releases.length > 0;
+      if (!releases.length) document.querySelector('.archive-title')?.classList.add('is-placed');
     } catch (error) {
       status.textContent = 'Impossibile caricare le release. Ricarica la pagina per riprovare.';
+      document.querySelector('.archive-title')?.classList.add('is-placed');
       console.error('Release archive:',error);
     }
   }
