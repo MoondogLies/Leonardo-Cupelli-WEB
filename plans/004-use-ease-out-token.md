@@ -1,6 +1,6 @@
 # 004 — Use the `--ease-out` token instead of hand-typed copies
 
-- **Status**: TODO
+- **Status**: DONE
 - **Commit**: 8d90252
 - **Severity**: LOW
 - **Category**: Cohesion & tokens

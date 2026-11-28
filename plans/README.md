@@ -7,7 +7,7 @@ Written by the `improve-animations` skill from an audit of the site's motion at 
 | 001 | [Remove the cover motion blur that never applies](001-remove-dead-cover-motion-blur.md) | MEDIUM | DONE |
 | 002 | [Scroll cue: no movement with reduced motion](002-scroll-cue-reduced-motion.md) | MEDIUM | DONE |
 | 003 | [Header links: grow on hover only with a mouse](003-header-hover-scale-pointer-only.md) | MEDIUM | DONE |
-| 004 | [Use the `--ease-out` token instead of hand-typed copies](004-use-ease-out-token.md) | LOW | TODO |
+| 004 | [Use the `--ease-out` token instead of hand-typed copies](004-use-ease-out-token.md) | LOW | DONE |
 
 ## Execution order
 

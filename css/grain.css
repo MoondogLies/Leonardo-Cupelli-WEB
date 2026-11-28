@@ -1,4 +1,4 @@
-@import url('./header-interactions.css?v=2');
+@import url('./header-interactions.css?v=3');
 
 body::after {
   content: "";

@@ -116,7 +116,7 @@
   contacts.classList.add('nav-contacts');
   discography.classList.add('nav-discography');
   const style = document.createElement('style');
-  style.textContent = `.site-nav .nav-contacts { opacity:1; visibility:visible; transition:opacity .2s ease,visibility 0s; } .site-nav .nav-discography { translate:0 0; transition:translate .45s cubic-bezier(.22,.61,.36,1),transform .3s cubic-bezier(.22,.61,.36,1); } .site-nav.at-contact-bottom .nav-contacts { opacity:0; visibility:hidden; pointer-events:none; transition:opacity .2s ease,visibility 0s linear .2s; } .site-nav.at-contact-bottom .nav-discography { translate:var(--contact-nav-shift,0px) 0; } @media(prefers-reduced-motion:reduce) { .site-nav .nav-contacts,.site-nav .nav-discography { transition:none!important; } }`;
+  style.textContent = `.site-nav .nav-contacts { opacity:1; visibility:visible; transition:opacity .2s ease,visibility 0s; } .site-nav .nav-discography { translate:0 0; transition:translate .45s var(--ease-out),transform .3s var(--ease-out); } .site-nav.at-contact-bottom .nav-contacts { opacity:0; visibility:hidden; pointer-events:none; transition:opacity .2s ease,visibility 0s linear .2s; } .site-nav.at-contact-bottom .nav-discography { translate:var(--contact-nav-shift,0px) 0; } @media(prefers-reduced-motion:reduce) { .site-nav .nav-contacts,.site-nav .nav-discography { transition:none!important; } }`;
   document.head.append(style);
   let frame = 0;
   let collapsed = false;
